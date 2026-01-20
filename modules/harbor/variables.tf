@@ -91,9 +91,9 @@ variable "harbor_namespace" {
 }
 
 variable "harbor_chart_version" {
-  description = "Harbor Helm chart version"
+  description = "Harbor Helm chart version (chart version, not app version)"
   type        = string
-  default     = "1.14.0"
+  default     = "1.18.1"
 }
 
 variable "harbor_external_url" {
