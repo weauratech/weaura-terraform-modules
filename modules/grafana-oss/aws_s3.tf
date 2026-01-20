@@ -37,6 +37,8 @@ resource "aws_s3_bucket_versioning" "this" {
 # -----------------------------
 # Encryption (for_each)
 # -----------------------------
+# Uses customer-managed KMS key if provided, otherwise falls back to AES256.
+# Providing a KMS CMK is recommended for enhanced security posture.
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   for_each = local.enabled_s3_buckets
 
@@ -44,7 +46,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = var.s3_kms_key_arn != "" ? "aws:kms" : "AES256"
+      kms_master_key_id = var.s3_kms_key_arn != "" ? var.s3_kms_key_arn : null
     }
     bucket_key_enabled = true
   }

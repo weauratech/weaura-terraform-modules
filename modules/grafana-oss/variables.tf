@@ -195,6 +195,12 @@ variable "s3_bucket_prefix" {
   default     = ""
 }
 
+variable "s3_kms_key_arn" {
+  description = "KMS key ARN for S3 bucket encryption. If empty, uses AES256 (AWS-managed keys). Providing a CMK improves security posture."
+  type        = string
+  default     = ""
+}
+
 variable "s3_buckets" {
   description = "S3 bucket names for each component (AWS only, optional if create_storage is true)"
   type = object({

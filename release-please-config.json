@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "modules/grafana-oss": {
+      "release-type": "terraform-module",
+      "component": "grafana-oss",
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "include-component-in-tag": true,
+      "tag-separator": "/"
+    }
+  },
+  "separate-pull-requests": false,
+  "sequential-calls": false
+}

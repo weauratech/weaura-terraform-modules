@@ -60,7 +60,7 @@ jobs:
         run: |
           for module in modules/*/; do
             echo "Linting $module..."
-            tflint --chdir="$module" --format=compact
+            tflint --config="$(pwd)/.tflint.hcl" --chdir="$module" --format=compact
           done
 
   security:
