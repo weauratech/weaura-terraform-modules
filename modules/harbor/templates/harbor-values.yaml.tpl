@@ -70,10 +70,10 @@ persistence:
 %{ endif ~}
       secure: true
       v4auth: true
-      chunksize: 5242880
-      multipartcopychunksize: 33554432
+      chunksize: "5242880"
+      multipartcopychunksize: "33554432"
       multipartcopymaxconcurrency: 100
-      multipartcopythresholdsize: 33554432
+      multipartcopythresholdsize: "33554432"
       rootdirectory: "/"
 
 # --------------------------------
