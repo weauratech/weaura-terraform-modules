@@ -25,7 +25,7 @@ expose:
     className: "${ingress_class}"
     annotations:
 %{ for key, value in ingress_annotations ~}
-      ${key}: "${value}"
+      ${key}: '${replace(value, "'", "''")}'
 %{ endfor ~}
 
 # --------------------------------
