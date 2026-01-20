@@ -288,7 +288,11 @@ options:
       - variable: slack_webhook_general
         question: "Slack webhook URL for general alerts:"
       - variable: slack_webhook_critical
-        question: "Slack webhook URL for critical alerts (optional):"
+        question: "Slack webhook URL for critical alerts (optional, uses general if empty):"
+      - variable: slack_channel_general
+        question: "Slack channel for general alerts (e.g., #alerts):"
+      - variable: slack_channel_critical
+        question: "Slack channel for critical alerts (e.g., #alerts-critical):"
 ```
 
 #### Decision 5: Ingress Scheme
