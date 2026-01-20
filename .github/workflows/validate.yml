@@ -1,0 +1,81 @@
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "modules/**"
+      - ".github/workflows/validate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "modules/**"
+
+jobs:
+  validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive -diff
+
+      - name: Validate Modules
+        run: |
+          for module in modules/*/; do
+            echo "Validating $module..."
+            cd "$module"
+            terraform init -backend=false
+            terraform validate
+            cd - > /dev/null
+          done
+
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: Init TFLint
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run TFLint
+        run: |
+          for module in modules/*/; do
+            echo "Linting $module..."
+            tflint --chdir="$module" --format=compact
+          done
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          scan-ref: "."
+          format: "table"
+          exit-code: "1"
+          severity: "HIGH,CRITICAL"

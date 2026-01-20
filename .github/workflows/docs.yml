@@ -1,0 +1,50 @@
+name: Documentation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "modules/**/*.tf"
+      - ".github/workflows/docs.yml"
+
+jobs:
+  docs:
+    name: Generate Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup terraform-docs
+        uses: jaxxstorm/action-install-gh-release@v1
+        with:
+          repo: terraform-docs/terraform-docs
+          tag: v0.17.0
+
+      - name: Generate Module Documentation
+        run: |
+          for module in modules/*/; do
+            echo "Generating docs for $module..."
+            terraform-docs markdown table \
+              --output-file README.md \
+              --output-mode inject \
+              "$module"
+          done
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "docs: auto-generate module documentation"
+          git push
