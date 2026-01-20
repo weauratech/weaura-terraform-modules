@@ -82,9 +82,7 @@ persistence:
 database:
   type: internal
   internal:
-    image:
-      repository: goharbor/harbor-db
-      tag: "${harbor_version}"
+    # Image tag is handled automatically by the Helm chart (matches chart app version)
     password: "${database_password}"
     shmSizeLimit: 512Mi
     livenessProbe:
@@ -117,9 +115,7 @@ postgresql:
 redis:
   type: internal
   internal:
-    image:
-      repository: goharbor/redis-photon
-      tag: "${harbor_version}"
+    # Image tag is handled automatically by the Helm chart
     nodeSelector: ${jsonencode(node_selector)}
     tolerations: ${jsonencode(tolerations)}
     resources:
@@ -148,9 +144,7 @@ core:
     initialDelaySeconds: 10
   serviceAccountName: "${registry_service_account}"
   automountServiceAccountToken: true
-  image:
-    repository: goharbor/harbor-core
-    tag: "${harbor_version}"
+  # Image tag is handled automatically by the Helm chart
   resources:
     requests:
       memory: "${core_resources_requests_memory}"
@@ -188,9 +182,7 @@ jobservice:
   reaper:
     max_update_hours: 24
     max_dangling_hours: 168
-  image:
-    repository: goharbor/harbor-jobservice
-    tag: "${harbor_version}"
+  # Image tag is handled automatically by the Helm chart
   resources:
     requests:
       memory: "${jobservice_resources_requests_memory}"
@@ -211,9 +203,7 @@ registry:
   serviceAccountName: "${registry_service_account}"
   automountServiceAccountToken: true
   registry:
-    image:
-      repository: goharbor/registry-photon
-      tag: "${harbor_version}"
+    # Image tag is handled automatically by the Helm chart
     resources:
       requests:
         memory: "${registry_resources_requests_memory}"
@@ -222,9 +212,7 @@ registry:
         memory: "${registry_resources_limits_memory}"
         cpu: "${registry_resources_limits_cpu}"
   controller:
-    image:
-      repository: goharbor/harbor-registryctl
-      tag: "${harbor_version}"
+    # Image tag is handled automatically by the Helm chart
     resources:
       requests:
         memory: 64Mi
@@ -252,9 +240,7 @@ registry:
 portal:
   replicas: ${portal_replicas}
   revisionHistoryLimit: 3
-  image:
-    repository: goharbor/harbor-portal
-    tag: "${harbor_version}"
+  # Image tag is handled automatically by the Helm chart
   resources:
     requests:
       memory: "${portal_resources_requests_memory}"
@@ -272,9 +258,7 @@ portal:
 trivy:
   enabled: ${enable_trivy}
   replicas: ${trivy_replicas}
-  image:
-    repository: goharbor/trivy-adapter-photon
-    tag: "${harbor_version}"
+  # Image tag is handled automatically by the Helm chart
   resources:
     requests:
       memory: "${trivy_resources_requests_memory}"
@@ -308,9 +292,7 @@ notary:
 exporter:
   replicas: 1
   revisionHistoryLimit: 3
-  image:
-    repository: goharbor/harbor-exporter
-    tag: "${harbor_version}"
+  # Image tag is handled automatically by the Helm chart
   resources:
     requests:
       memory: 64Mi

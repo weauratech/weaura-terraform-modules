@@ -61,8 +61,9 @@ resource "helm_release" "harbor" {
       # Trivy configuration
       enable_trivy = var.enable_trivy
 
-      # Harbor version (for image tags)
-      harbor_version = "v${var.harbor_chart_version}"
+      # Note: We don't set harbor_version for image tags.
+      # The Helm chart automatically uses the correct app version matching the chart version.
+      # Chart 1.18.1 -> App v2.14.1 (images goharbor/*:v2.14.1)
 
       # Admin password
       admin_password = local.harbor_admin_password_value
