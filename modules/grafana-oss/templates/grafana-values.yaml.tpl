@@ -43,8 +43,13 @@ env:
 # ============================================================
 # INGRESS - NGINX Ingress Controller
 # ============================================================
+# TLS Configuration:
+# - If tls_secret_name is provided: uses pre-existing secret (e.g., from External Secrets)
+# - If tls_secret_name is empty and cluster_issuer is set: uses cert-manager
+# - If both are empty: uses default secret name "grafana-tls"
+# ============================================================
 ingress:
-  enabled: true
+  enabled: ${enable_ingress}
   ingressClassName: ${ingress_class}
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -52,12 +57,20 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+%{ if tls_secret_name == "" && cluster_issuer != "" ~}
+    cert-manager.io/cluster-issuer: "${cluster_issuer}"
+%{ endif ~}
+%{ for key, value in ingress_annotations ~}
+    ${key}: "${value}"
+%{ endfor ~}
   hosts:
     - ${grafana_domain}
+%{ if enable_tls ~}
   tls:
-    - secretName: grafana-tls
+    - secretName: ${tls_secret_name != "" ? tls_secret_name : (cluster_issuer != "" ? "grafana-tls" : "grafana-tls")}
       hosts:
         - ${grafana_domain}
+%{ endif ~}
 
 # ============================================================
 # SIDECAR - DISABLED (using Grafana Provider)
