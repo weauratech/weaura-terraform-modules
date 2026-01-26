@@ -778,6 +778,23 @@ variable "tls_secret_name" {
   default     = ""
 }
 
+# External Secrets for TLS (Azure KeyVault / AWS Secrets Manager)
+variable "enable_tls_external_secret" {
+  description = "Enable creation of ExternalSecret for TLS certificate sync from Azure KeyVault or AWS Secrets Manager"
+  type        = bool
+  default     = false
+}
+
+variable "tls_external_secret_config" {
+  description = "Configuration for TLS ExternalSecret"
+  type = object({
+    cluster_secret_store_name = optional(string, "")
+    key_vault_cert_name       = optional(string, "")
+    secret_refresh_interval   = optional(string, "1h")
+  })
+  default = {}
+}
+
 # AWS-specific ingress
 variable "acm_certificate_arn" {
   description = "ACM certificate ARN for HTTPS (AWS ALB ingress only)"
