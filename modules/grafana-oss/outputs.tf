@@ -386,13 +386,14 @@ output "module_summary" {
     }
 
     features = {
-      storage_created   = var.create_storage
-      alerting_enabled  = var.alerting_provider != "none"
-      alerting_provider = var.alerting_provider
-      resource_quotas   = var.enable_resource_quotas
-      limit_ranges      = var.enable_limit_ranges
-      network_policies  = var.enable_network_policies
-      sso_enabled       = var.grafana_sso_enabled
+      storage_created     = var.create_storage
+      alerting_enabled    = var.alerting_provider != "none"
+      alerting_provider   = var.alerting_provider
+      resource_quotas     = var.enable_resource_quotas
+      limit_ranges        = var.enable_limit_ranges
+      network_policies    = var.enable_network_policies
+      sso_enabled         = var.grafana_sso_enabled
+      tls_external_secret = var.enable_tls_external_secret
     }
 
     grafana_url = var.enable_grafana ? "https://${var.grafana_domain}" : null
