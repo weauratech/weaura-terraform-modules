@@ -28,8 +28,9 @@ resource "azurerm_storage_account" "this" {
   shared_access_key_enabled       = true
 
   # Blob properties for observability data
+  # Note: versioning_enabled must be false when is_hns_enabled is true (ADLS Gen2)
   blob_properties {
-    versioning_enabled = true
+    versioning_enabled = false
 
     delete_retention_policy {
       days = 7

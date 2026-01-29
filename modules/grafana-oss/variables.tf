@@ -965,3 +965,13 @@ variable "global_tolerations" {
   }))
   default = []
 }
+
+# ============================================================
+# GRAFANA RESOURCES TOGGLE
+# ============================================================
+
+variable "enable_grafana_resources" {
+  description = "Enable Grafana resources (folders, alerting, dashboards). Set to false for initial deploy when Grafana is not yet accessible from the pipeline agent."
+  type        = bool
+  default     = false
+}
