@@ -10,7 +10,7 @@
 # ============================================================
 
 resource "grafana_folder" "infrastructure" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   uid   = "infrastructure"
   title = "Infrastructure"
@@ -19,7 +19,7 @@ resource "grafana_folder" "infrastructure" {
 }
 
 resource "grafana_folder" "kubernetes" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   uid   = "kubernetes"
   title = "Kubernetes"
@@ -28,7 +28,7 @@ resource "grafana_folder" "kubernetes" {
 }
 
 resource "grafana_folder" "applications" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   uid   = "applications"
   title = "Applications"
@@ -37,7 +37,7 @@ resource "grafana_folder" "applications" {
 }
 
 resource "grafana_folder" "sre" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   uid   = "sre"
   title = "SRE"
@@ -46,7 +46,7 @@ resource "grafana_folder" "sre" {
 }
 
 resource "grafana_folder" "alerts" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   uid   = "alerts"
   title = "Alert Rules"
@@ -59,7 +59,7 @@ resource "grafana_folder" "alerts" {
 # ============================================================
 
 resource "grafana_folder" "prometheus" {
-  count = var.enable_grafana && var.enable_prometheus ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.enable_prometheus ? 1 : 0
 
   uid   = "prometheus"
   title = "Prometheus"
@@ -68,7 +68,7 @@ resource "grafana_folder" "prometheus" {
 }
 
 resource "grafana_folder" "loki" {
-  count = var.enable_grafana && var.enable_loki ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.enable_loki ? 1 : 0
 
   uid   = "loki"
   title = "Loki"
@@ -77,7 +77,7 @@ resource "grafana_folder" "loki" {
 }
 
 resource "grafana_folder" "mimir" {
-  count = var.enable_grafana && var.enable_mimir ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.enable_mimir ? 1 : 0
 
   uid   = "mimir"
   title = "Mimir"
@@ -86,7 +86,7 @@ resource "grafana_folder" "mimir" {
 }
 
 resource "grafana_folder" "tempo" {
-  count = var.enable_grafana && var.enable_tempo ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.enable_tempo ? 1 : 0
 
   uid   = "tempo"
   title = "Tempo"
@@ -95,7 +95,7 @@ resource "grafana_folder" "tempo" {
 }
 
 resource "grafana_folder" "pyroscope" {
-  count = var.enable_grafana && var.enable_pyroscope ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.enable_pyroscope ? 1 : 0
 
   uid   = "pyroscope"
   title = "Pyroscope"
@@ -108,7 +108,7 @@ resource "grafana_folder" "pyroscope" {
 # ============================================================
 
 resource "grafana_folder" "custom" {
-  for_each = var.enable_grafana ? var.grafana_folders : {}
+  for_each = var.enable_grafana && var.enable_grafana_resources ? var.grafana_folders : {}
 
   uid   = each.key
   title = each.value.title
@@ -121,7 +121,7 @@ resource "grafana_folder" "custom" {
 # ============================================================
 
 resource "grafana_folder_permission" "infrastructure" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   folder_uid = grafana_folder.infrastructure[0].uid
 
@@ -139,7 +139,7 @@ resource "grafana_folder_permission" "infrastructure" {
 }
 
 resource "grafana_folder_permission" "kubernetes" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   folder_uid = grafana_folder.kubernetes[0].uid
 
@@ -157,7 +157,7 @@ resource "grafana_folder_permission" "kubernetes" {
 }
 
 resource "grafana_folder_permission" "applications" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   folder_uid = grafana_folder.applications[0].uid
 
@@ -175,7 +175,7 @@ resource "grafana_folder_permission" "applications" {
 }
 
 resource "grafana_folder_permission" "sre" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   folder_uid = grafana_folder.sre[0].uid
 
@@ -198,7 +198,7 @@ resource "grafana_folder_permission" "sre" {
 }
 
 resource "grafana_folder_permission" "alerts" {
-  count = var.enable_grafana ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources ? 1 : 0
 
   folder_uid = grafana_folder.alerts[0].uid
 

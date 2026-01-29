@@ -16,7 +16,7 @@ resource "helm_release" "pyroscope" {
   create_namespace = false
   wait             = true
   wait_for_jobs    = true
-  timeout          = 600
+  timeout          = 900
   atomic           = true
   cleanup_on_fail  = true
 

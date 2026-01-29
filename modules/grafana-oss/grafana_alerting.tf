@@ -10,7 +10,7 @@
 # ============================================================
 
 resource "grafana_message_template" "default" {
-  count = var.enable_grafana && var.alerting_provider != "none" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.alerting_provider != "none" ? 1 : 0
 
   name = "default-alert-template"
 
@@ -39,7 +39,7 @@ resource "grafana_message_template" "default" {
 }
 
 resource "grafana_message_template" "critical" {
-  count = var.enable_grafana && var.alerting_provider != "none" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.alerting_provider != "none" ? 1 : 0
 
   name = "critical-alert-template"
 
@@ -69,7 +69,7 @@ resource "grafana_message_template" "critical" {
 # ============================================================
 
 resource "grafana_contact_point" "slack_general" {
-  count = var.enable_grafana && local.is_slack && var.slack_webhook_general != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_slack && var.slack_webhook_general != "" ? 1 : 0
 
   name = "slack-general"
 
@@ -90,7 +90,7 @@ resource "grafana_contact_point" "slack_general" {
 }
 
 resource "grafana_contact_point" "slack_critical" {
-  count = var.enable_grafana && local.is_slack && var.slack_webhook_critical != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_slack && var.slack_webhook_critical != "" ? 1 : 0
 
   name = "slack-critical"
 
@@ -109,7 +109,7 @@ resource "grafana_contact_point" "slack_critical" {
 }
 
 resource "grafana_contact_point" "slack_infrastructure" {
-  count = var.enable_grafana && local.is_slack && var.slack_webhook_infrastructure != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_slack && var.slack_webhook_infrastructure != "" ? 1 : 0
 
   name = "slack-infrastructure"
 
@@ -127,7 +127,7 @@ resource "grafana_contact_point" "slack_infrastructure" {
 }
 
 resource "grafana_contact_point" "slack_application" {
-  count = var.enable_grafana && local.is_slack && var.slack_webhook_application != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_slack && var.slack_webhook_application != "" ? 1 : 0
 
   name = "slack-application"
 
@@ -149,7 +149,7 @@ resource "grafana_contact_point" "slack_application" {
 # ============================================================
 
 resource "grafana_contact_point" "teams_general" {
-  count = var.enable_grafana && local.is_teams && var.teams_webhook_general != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_general != "" ? 1 : 0
 
   name = "teams-general"
 
@@ -165,7 +165,7 @@ resource "grafana_contact_point" "teams_general" {
 }
 
 resource "grafana_contact_point" "teams_critical" {
-  count = var.enable_grafana && local.is_teams && var.teams_webhook_critical != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_critical != "" ? 1 : 0
 
   name = "teams-critical"
 
@@ -181,7 +181,7 @@ resource "grafana_contact_point" "teams_critical" {
 }
 
 resource "grafana_contact_point" "teams_infrastructure" {
-  count = var.enable_grafana && local.is_teams && var.teams_webhook_infrastructure != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_infrastructure != "" ? 1 : 0
 
   name = "teams-infrastructure"
 
@@ -197,7 +197,7 @@ resource "grafana_contact_point" "teams_infrastructure" {
 }
 
 resource "grafana_contact_point" "teams_application" {
-  count = var.enable_grafana && local.is_teams && var.teams_webhook_application != "" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_application != "" ? 1 : 0
 
   name = "teams-application"
 
@@ -248,7 +248,7 @@ locals {
 }
 
 resource "grafana_notification_policy" "main" {
-  count = var.enable_grafana && var.alerting_provider != "none" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.alerting_provider != "none" ? 1 : 0
 
   contact_point   = local.default_contact_point
   group_by        = ["alertname", "namespace", "job"]
@@ -327,7 +327,7 @@ resource "grafana_notification_policy" "main" {
 # ============================================================
 
 resource "grafana_mute_timing" "maintenance" {
-  count = var.enable_grafana && var.alerting_provider != "none" ? 1 : 0
+  count = var.enable_grafana && var.enable_grafana_resources && var.alerting_provider != "none" ? 1 : 0
 
   name = "scheduled-maintenance"
 
