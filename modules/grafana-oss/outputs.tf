@@ -285,7 +285,7 @@ output "storage_configuration" {
 
 output "grafana_folder_uids" {
   description = "UIDs of Grafana folders created"
-  value = var.enable_grafana ? {
+  value = var.enable_grafana && var.enable_grafana_resources ? {
     infrastructure = grafana_folder.infrastructure[0].uid
     kubernetes     = grafana_folder.kubernetes[0].uid
     applications   = grafana_folder.applications[0].uid
@@ -310,7 +310,7 @@ output "alerting_configuration" {
     provider            = var.alerting_provider
     enabled             = var.alerting_provider != "none"
     default_contact     = var.alerting_provider != "none" ? local.default_contact_point : null
-    notification_policy = var.enable_grafana && var.alerting_provider != "none" ? grafana_notification_policy.main[0].id : null
+    notification_policy = var.enable_grafana && var.enable_grafana_resources && var.alerting_provider != "none" ? grafana_notification_policy.main[0].id : null
   }
 }
 
