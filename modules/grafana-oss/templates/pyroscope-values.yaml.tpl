@@ -18,6 +18,19 @@ pyroscope:
       cpu: ${pyroscope_resources.limits.cpu}
       memory: ${pyroscope_resources.limits.memory}
 
+  # Environment variables for memberlist configuration
+  # Fixes "no private IP address found" error by explicitly setting POD_IP
+  extraEnv:
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+
+  # Extra args to configure memberlist advertise address
+  extraArgs:
+    - "-memberlist.advertise-addr=$(POD_IP)"
+    - "-memberlist.advertise-port=7946"
+
   # Node Selector - run on observability nodes
 %{ if length(node_selector) > 0 ~}
   nodeSelector:

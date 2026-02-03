@@ -35,6 +35,8 @@ resource "kubernetes_namespace" "this" {
 # -----------------------------
 # Resource Quotas (for_each)
 # -----------------------------
+# NOTE: Using lifecycle ignore_changes to prevent race conditions with Helm.
+# Helm charts may also try to update these quotas, causing "the object has been modified" errors.
 resource "kubernetes_resource_quota" "this" {
   for_each = var.enable_resource_quotas ? local.enabled_components : {}
 
@@ -55,6 +57,15 @@ resource "kubernetes_resource_quota" "this" {
       "secrets"                = local.resource_quotas[each.key].secrets
       "configmaps"             = local.resource_quotas[each.key].configmaps
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore resourceVersion changes that can cause race conditions
+      # when Helm and Terraform both try to modify the quota
+      metadata[0].resource_version,
+      metadata[0].annotations["kubectl.kubernetes.io/last-applied-configuration"],
+    ]
   }
 }
 
