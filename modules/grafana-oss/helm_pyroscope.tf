@@ -45,7 +45,6 @@ resource "helm_release" "pyroscope" {
 
   depends_on = [
     kubernetes_namespace.this,
-    kubernetes_resource_quota.this,
     kubernetes_limit_range.this,
   ]
 }

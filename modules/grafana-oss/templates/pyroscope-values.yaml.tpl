@@ -27,9 +27,10 @@ pyroscope:
           fieldPath: status.podIP
 
   # Extra args to configure memberlist advertise address
+  # NOTE: Format must be a map (key: value), not a list of strings
   extraArgs:
-    - "-memberlist.advertise-addr=$(POD_IP)"
-    - "-memberlist.advertise-port=7946"
+    "memberlist.advertise-addr": "$(POD_IP)"
+    "memberlist.advertise-port": "7946"
 
   # Node Selector - run on observability nodes
 %{ if length(node_selector) > 0 ~}

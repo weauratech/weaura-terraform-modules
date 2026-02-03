@@ -71,7 +71,6 @@ resource "helm_release" "mimir" {
 
   depends_on = [
     kubernetes_namespace.this,
-    kubernetes_resource_quota.this,
     kubernetes_limit_range.this,
     kubernetes_service_account.workload_identity,
     # AWS dependencies

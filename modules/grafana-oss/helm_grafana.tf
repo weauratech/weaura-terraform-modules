@@ -101,7 +101,6 @@ resource "helm_release" "grafana" {
 
   depends_on = [
     kubernetes_namespace.this,
-    kubernetes_resource_quota.this,
     kubernetes_limit_range.this,
   ]
 }

@@ -60,9 +60,9 @@ variable "enable_pyroscope" {
 }
 
 variable "enable_resource_quotas" {
-  description = "Enable Kubernetes ResourceQuotas for each namespace"
+  description = "Enable Kubernetes ResourceQuotas for each namespace. Disabled by default to avoid conflicts with Helm atomic deployments."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_limit_ranges" {
