@@ -139,18 +139,49 @@ resource "kubernetes_network_policy" "this" {
 # Service Accounts for Workload Identity
 # -----------------------------
 # Creates service accounts with cloud-specific annotations for workload identity
+# IMPORTANT: Labels are set to be Helm-compatible to avoid conflicts when Helm
+# charts try to manage the same ServiceAccount. Helm expects:
+# - app.kubernetes.io/managed-by: Helm
+# - meta.helm.sh/release-name: <release-name>
+# - meta.helm.sh/release-namespace: <namespace>
 resource "kubernetes_service_account" "workload_identity" {
   for_each = local.enabled_storage_components
 
   metadata {
     name      = each.key
     namespace = kubernetes_namespace.this[each.key].metadata[0].name
-    labels    = local.common_labels
-    annotations = local.is_aws ? {
-      "eks.amazonaws.com/role-arn" = aws_iam_role.irsa[each.key].arn
-      } : local.is_azure ? {
-      "azure.workload.identity/client-id" = azurerm_user_assigned_identity.workload_identity[each.key].client_id
-      "azure.workload.identity/use"       = "true"
-    } : {}
+    # Use Helm-compatible labels to avoid conflicts with Helm releases
+    labels = {
+      "app.kubernetes.io/managed-by" = "Helm"
+      "app.kubernetes.io/part-of"    = "observability-stack"
+      "environment"                  = var.environment
+      "cloud-provider"               = var.cloud_provider
+    }
+    # Include Helm release annotations + cloud-specific workload identity annotations
+    annotations = merge(
+      # Helm release metadata (required for Helm to adopt this resource)
+      {
+        "meta.helm.sh/release-name"      = each.key
+        "meta.helm.sh/release-namespace" = kubernetes_namespace.this[each.key].metadata[0].name
+      },
+      # Cloud-specific workload identity annotations
+      local.is_aws ? {
+        "eks.amazonaws.com/role-arn" = aws_iam_role.irsa[each.key].arn
+        } : local.is_azure ? {
+        "azure.workload.identity/client-id" = azurerm_user_assigned_identity.workload_identity[each.key].client_id
+        "azure.workload.identity/use"       = "true"
+      } : {}
+    )
+  }
+
+  # Ignore changes to labels/annotations that Helm might modify
+  lifecycle {
+    ignore_changes = [
+      metadata[0].labels["app.kubernetes.io/instance"],
+      metadata[0].labels["app.kubernetes.io/name"],
+      metadata[0].labels["app.kubernetes.io/version"],
+      metadata[0].labels["helm.sh/chart"],
+      metadata[0].annotations["kubectl.kubernetes.io/last-applied-configuration"],
+    ]
   }
 }

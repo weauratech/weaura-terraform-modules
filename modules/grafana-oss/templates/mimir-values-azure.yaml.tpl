@@ -9,13 +9,12 @@
 # ============================================================
 # SERVICE ACCOUNT - Workload Identity for Azure Blob Access
 # ============================================================
+# IMPORTANT: ServiceAccount is created by Terraform (kubernetes.tf) with
+# Helm-compatible labels. This ensures the Workload Identity annotations
+# are present before the Helm chart is installed.
 serviceAccount:
-  create: true
+  create: false
   name: mimir
-  annotations:
-    azure.workload.identity/client-id: ${mimir_client_id}
-  labels:
-    azure.workload.identity/use: "true"
 
 # Global configuration
 global:

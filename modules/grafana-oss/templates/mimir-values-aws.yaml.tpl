@@ -9,11 +9,12 @@
 # ============================================================
 # SERVICE ACCOUNT - IRSA for S3 Access
 # ============================================================
+# IMPORTANT: ServiceAccount is created by Terraform (kubernetes.tf) with
+# Helm-compatible labels. This ensures the IRSA annotations are present
+# before the Helm chart is installed.
 serviceAccount:
-  create: true
+  create: false
   name: mimir
-  annotations:
-    eks.amazonaws.com/role-arn: ${mimir_irsa_role_arn}
 
 # Global configuration
 global:
