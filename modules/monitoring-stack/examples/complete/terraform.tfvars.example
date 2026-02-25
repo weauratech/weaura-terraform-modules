@@ -1,0 +1,99 @@
+# ============================================================
+# Example Terraform Variables
+# ============================================================
+# Copy this file to terraform.tfvars and fill in your values
+# ============================================================
+
+# --------------------------------
+# Required Variables
+# --------------------------------
+
+cluster_name = "my-eks-cluster"
+region       = "us-east-1"
+
+# --------------------------------
+# General Configuration
+# --------------------------------
+
+environment = "production"
+owner       = "platform-team"
+cost_center = "engineering"
+namespace   = "monitoring"
+
+# --------------------------------
+# Grafana Configuration
+# --------------------------------
+
+# IMPORTANT: Use a secure password or reference AWS Secrets Manager
+grafana_admin_password = "change-me-to-secure-password"
+
+# Set to true and configure hostname to enable external access
+enable_ingress       = false
+grafana_ingress_host = ""  # e.g., "grafana.example.com"
+
+# --------------------------------
+# Storage Configuration
+# --------------------------------
+# Adjust based on your expected log/metric volume
+
+# Loki (Logs)
+loki_storage_size = "100Gi"
+loki_retention    = "60d"
+
+# Mimir (Metrics - Long-term)
+mimir_storage_size = "200Gi"
+mimir_retention    = "180d"
+
+# Tempo (Traces)
+tempo_storage_size = "100Gi"
+tempo_retention    = "60d"
+
+# Prometheus (Metrics - Short-term)
+prometheus_storage_size = "100Gi"
+prometheus_retention    = "30d"
+
+# Pyroscope (Profiling)
+pyroscope_storage_size = "50Gi"
+
+# --------------------------------
+# S3 Configuration
+# --------------------------------
+
+# Leave empty to use "{cluster_name}-monitoring" as prefix
+s3_bucket_prefix = ""
+
+# Alert when any S3 bucket exceeds this size (in GB)
+s3_size_alarm_threshold_gb = 500
+
+# --------------------------------
+# Monitoring & Alerting
+# --------------------------------
+
+enable_sns_alerts = false
+alert_email       = ""  # e.g., "platform-team@example.com"
+
+# --------------------------------
+# Advanced Configuration
+# --------------------------------
+
+# Additional Helm values to customize deployment
+additional_helm_values = {
+  # Example: Customize Grafana resources
+  # grafana = {
+  #   resources = {
+  #     requests = {
+  #       memory = "256Mi"
+  #       cpu    = "200m"
+  #     }
+  #     limits = {
+  #       memory = "512Mi"
+  #       cpu    = "500m"
+  #     }
+  #   }
+  # }
+  
+  # Example: Scale Loki
+  # loki = {
+  #   replicas = 3
+  # }
+}
