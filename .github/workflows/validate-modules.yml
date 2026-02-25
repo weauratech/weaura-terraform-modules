@@ -1,0 +1,196 @@
+name: Validate Terraform Modules
+
+on:
+  pull_request:
+    paths:
+      - 'modules/**/*.tf'
+      - 'modules/**/variables.tf'
+      - 'modules/**/outputs.tf'
+  push:
+    branches:
+      - main
+    paths:
+      - 'modules/**/*.tf'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  detect-changes:
+    name: Detect Changed Modules
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.changed-modules.outputs.modules }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get changed modules
+        id: changed-modules
+        run: |
+          # Get list of changed files
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          # Extract unique module names
+          MODULES=$(echo "$CHANGED_FILES" | \
+            grep '^modules/' | \
+            cut -d'/' -f2 | \
+            sort -u | \
+            jq -R -s -c 'split("\n") | map(select(length > 0))')
+          
+          echo "Changed modules: $MODULES"
+          echo "modules=$MODULES" >> $GITHUB_OUTPUT
+
+  validate:
+    name: Validate Module
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.modules != '[]'
+    
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.detect-changes.outputs.modules) }}
+      fail-fast: false
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+      
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive modules/${{ matrix.module }}
+        continue-on-error: true
+      
+      - name: Terraform Init
+        id: init
+        working-directory: modules/${{ matrix.module }}
+        run: terraform init -backend=false
+      
+      - name: Terraform Validate
+        id: validate
+        working-directory: modules/${{ matrix.module }}
+        run: terraform validate -no-color
+      
+      - name: Check Required Files
+        id: check-files
+        run: |
+          MODULE_PATH="modules/${{ matrix.module }}"
+          MISSING_FILES=""
+          
+          # Check for required files
+          for file in README.md versions.tf variables.tf outputs.tf; do
+            if [ ! -f "$MODULE_PATH/$file" ]; then
+              MISSING_FILES="$MISSING_FILES\n- $file"
+            fi
+          done
+          
+          if [ -n "$MISSING_FILES" ]; then
+            echo "error=Missing required files:$MISSING_FILES" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "All required files present"
+      
+      - name: Validate Examples
+        id: validate-examples
+        if: hashFiles('modules/${{ matrix.module }}/examples/**/*.tf') != ''
+        run: |
+          for example in modules/${{ matrix.module }}/examples/*/; do
+            if [ -d "$example" ]; then
+              echo "Validating example: $example"
+              cd "$example"
+              terraform init -backend=false
+              terraform validate -no-color
+              cd -
+            fi
+          done
+      
+      - name: Check Documentation
+        id: check-docs
+        run: |
+          README="modules/${{ matrix.module }}/README.md"
+          
+          # Check README has required sections
+          REQUIRED_SECTIONS=("Usage" "Requirements" "Inputs" "Outputs")
+          MISSING_SECTIONS=""
+          
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if ! grep -qi "## $section" "$README"; then
+              MISSING_SECTIONS="$MISSING_SECTIONS\n- $section"
+            fi
+          done
+          
+          if [ -n "$MISSING_SECTIONS" ]; then
+            echo "warning=Missing recommended README sections:$MISSING_SECTIONS" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const module = '${{ matrix.module }}';
+            const fmt = '${{ steps.fmt.outcome }}';
+            const init = '${{ steps.init.outcome }}';
+            const validate = '${{ steps.validate.outcome }}';
+            const files = '${{ steps.check-files.outcome }}';
+            const examples = '${{ steps.validate-examples.outcome }}';
+            const docs = '${{ steps.check-docs.outputs.warning }}';
+            
+            let status = '✅';
+            if (fmt !== 'success' || init !== 'success' || validate !== 'success' || files !== 'success') {
+              status = '❌';
+            } else if (docs) {
+              status = '⚠️';
+            }
+            
+            let body = `### ${status} Module: \`${module}\`\n\n`;
+            body += `| Check | Status |\n`;
+            body += `|-------|--------|\n`;
+            body += `| Format | ${fmt === 'success' ? '✅' : '❌'} |\n`;
+            body += `| Init | ${init === 'success' ? '✅' : '❌'} |\n`;
+            body += `| Validate | ${validate === 'success' ? '✅' : '❌'} |\n`;
+            body += `| Required Files | ${files === 'success' ? '✅' : '❌'} |\n`;
+            
+            if (examples) {
+              body += `| Examples | ${examples === 'success' ? '✅' : '⚠️'} |\n`;
+            }
+            
+            if (docs) {
+              body += `\n⚠️ **Documentation Warnings:**\n${docs}\n`;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  validate-success:
+    name: All Validations Passed
+    runs-on: ubuntu-latest
+    needs: validate
+    if: always()
+    
+    steps:
+      - name: Check validation results
+        run: |
+          if [ "${{ needs.validate.result }}" = "failure" ]; then
+            echo "❌ Module validation failed"
+            exit 1
+          fi
+          echo "✅ All modules validated successfully"
