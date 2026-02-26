@@ -24,12 +24,6 @@ resource "helm_release" "monitoring" {
   chart      = "weaura-monitoring"
   version    = var.chart_version
 
-  # Force OCI protocol
-  repository_config {
-    oci {
-      enabled = true
-    }
-  }
 
   # ECR authentication (automatic via AWS provider)
   repository_username = "AWS"

@@ -152,6 +152,14 @@ output "enabled_components" {
   description = "List of enabled monitoring components"
   value = [
     for component in ["grafana", "loki", "mimir", "tempo", "prometheus", "pyroscope"] :
-    component if try(var[component].enabled, false)
+    component if try(
+      component == "grafana" ? var.grafana.enabled :
+      component == "loki" ? var.loki.enabled :
+      component == "mimir" ? var.mimir.enabled :
+      component == "tempo" ? var.tempo.enabled :
+      component == "prometheus" ? var.prometheus.enabled :
+      component == "pyroscope" ? var.pyroscope.enabled : false,
+      false
+    )
   ]
 }
