@@ -47,10 +47,18 @@ locals {
     # Loki
     loki = {
       enabled = var.loki.enabled
-      storage = {
-        size = var.loki.storage_size
+      persistence = {
+        enabled = true
+        size    = var.loki.storage_size
       }
       retention = var.loki.retention
+      # Disable unnecessary components for single-binary deployment
+      lokiCanary = {
+        enabled = false
+      }
+      test = {
+        enabled = false
+      }
     }
 
     # Mimir
@@ -63,21 +71,54 @@ locals {
     }
 
     # Tempo
-    tempo = {
-      enabled = var.tempo.enabled
-      storage = {
-        size = var.tempo.storage_size
-      }
-      retention = var.tempo.retention
-    }
+    tempo = merge(
+      {
+        enabled = var.tempo.enabled
+        persistence = {
+          enabled = true
+          size    = var.tempo.storage_size
+        }
+      },
+      var.cloud_provider == "aws" ? {
+        tempo = {
+          storage = {
+            trace = {
+              backend = "s3"
+              s3 = {
+                bucket   = local.tempo_s3_bucket
+                region   = var.region
+                endpoint = "s3.${var.region}.amazonaws.com"
+                insecure = false
+              }
+            }
+          }
+          metricsGenerator = {
+            enabled        = true
+            remoteWriteUrl = "http://prometheus-server:80/api/v1/write"
+          }
+          retention = var.tempo.retention
+        }
+      } : {}
+    )
 
     # Prometheus
+    # Prometheus (kube-prometheus-stack chart)
     prometheus = {
       enabled = var.prometheus.enabled
-      storage = {
-        size = var.prometheus.storage_size
+      server = {
+        persistentVolume = {
+          size = var.prometheus.storage_size
+        }
+        retention = var.prometheus.retention
       }
-      retention = var.prometheus.retention
+      # Disable node-exporter DaemonSet (kube-prometheus-stack nodeExporter control)
+      nodeExporter = {
+        enabled = false
+      }
+      # Keep kube-state-metrics enabled (lightweight and useful)
+      kubeStateMetrics = {
+        enabled = true
+      }
     }
 
     # Pyroscope
@@ -110,7 +151,28 @@ locals {
         }
       }
       useIRSA = var.aws_config.use_irsa
-    } : {}
+      } : {
+      region = ""
+      s3 = {
+        loki = {
+          bucket = ""
+          region = ""
+        }
+        mimir = {
+          bucket = ""
+          region = ""
+        }
+        tempo = {
+          bucket = ""
+          region = ""
+        }
+        pyroscope = {
+          bucket = ""
+          region = ""
+        }
+      }
+      useIRSA = false
+    }
   }
 
   # Merge default values with user-provided values
