@@ -9,7 +9,7 @@
 
 ## 📋 Overview
 
-This checklist ensures a smooth onboarding process for clients deploying the WeAura Monitoring Stack via Terraform Cloud.
+This checklist ensures a smooth onboarding process for clients deploying the WeAura Monitoring Stack via GitHub.
 
 **Estimated Time**: 2-3 hours (including deployment and verification)
 
@@ -22,27 +22,27 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
 
 ### Infrastructure Setup
 
-- [ ] **Terraform Cloud organization verified**
+- [ ] **GitHub organization verified**
   - Organization: `weauratech`
-  - Modules published and accessible
+  - Repository accessible
   - Versions: `ecr-charts` v1.0.0, `monitoring-stack` v1.0.0
 
-- [ ] **ECR chart published and tested**
+- [ ] **Harbor chart published and tested**
   - Chart: `weaura-monitoring` v0.1.0
-  - Registry: `950242546328.dkr.ecr.us-east-2.amazonaws.com`
+  - Registry: `registry.dev.weaura.ai`
   - Repository: `weaura-vendorized/charts/weaura-monitoring`
   - Digest verified: `sha256:2b9d3745...`
 
-- [ ] **Cross-account IAM access configured** (if client needs direct ECR access)
-  - Client AWS account ID obtained: `________________`
-  - ECR repository policy updated with client account
-  - Cross-account role created (if applicable)
+- [ ] **Harbor robot account configured** (if client needs direct Harbor registry access)
+  - Client organization/username obtained: `________________`
+  - Harbor robot account created for client
+  - Robot account credentials stored securely (if applicable)
 
 ### Credentials Generation
 
-- [ ] **Terraform Cloud team token generated**
+- [ ] **GitHub personal access token generated**
   - Token name: `client-[CLIENT_NAME]-monitoring-stack`
-  - Permissions: Read-only access to modules
+  - Permissions: Read-only access to `weaura-terraform-modules` repository
   - Expiry date set: `________________` (recommended: 90 days)
   - Token stored securely in 1Password/Vault
 
@@ -120,7 +120,7 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
 
 ### Credentials Delivery (During Call - 15 min)
 
-- [ ] **Terraform Cloud token delivered securely**
+- [ ] **GitHub token delivered securely**
   - Method: 1Password secure share / Vault
   - ❌ NOT via email or Slack
   - ❌ NOT via screen share (token visible)
@@ -148,7 +148,7 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
   - Or file sent via: `________________`
 
 - [ ] **Additional resources provided**
-  - Terraform Cloud registry links
+  - GitHub repository links
   - Grafana documentation
   - AWS IRSA documentation
 
@@ -163,8 +163,8 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
     - Region: `________________`
     - Kubernetes version: `________________`
 
-- [ ] **Terraform Cloud authentication**
-  - Walked through `terraform login`
+- [ ] **GitHub authentication**
+  - Walked through `git credential helper`
   - Token pasted successfully
   - Authentication verified
 
@@ -180,7 +180,7 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
 
 - [ ] **Deployment walkthrough**
   - `terraform init` executed successfully
-  - Module downloaded from Terraform Cloud
+  - Module downloaded from GitHub
   - `terraform validate` passed
   - `terraform plan` reviewed together
     - Expected resources confirmed (S3, IAM, K8s, Helm)
@@ -319,19 +319,19 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
 ### Common Issues (Reference)
 
 #### Issue: Module not found
-- **Cause**: Terraform Cloud authentication failure
+- **Cause**: GitHub authentication failure
 - **Resolution**: 
   - [ ] Verify token in `~/.terraform.d/credentials.tfrc.json`
-  - [ ] Re-run `terraform login`
+  - [ ] Re-run `git credential helper`
   - [ ] Check token expiry date
   - [ ] Regenerate token if expired
 
-#### Issue: ECR authentication error
-- **Cause**: Cross-account access not configured
+#### Issue: Harbor authentication error
+- **Cause**: Robot account credentials not configured
 - **Resolution**:
-  - [ ] Verify client AWS account ID
-  - [ ] Check ECR repository policy
-  - [ ] Verify IRSA configuration
+  - [ ] Verify client Harbor robot account credentials
+  - [ ] Check Harbor registry access policy
+  - [ ] Verify robot account permissions
   - [ ] Contact WeAura infrastructure team
 
 #### Issue: Pods in CrashLoopBackOff

@@ -10,7 +10,7 @@
 
 1. [Overview](#overview)
 2. [Prerequisites](#prerequisites)
-3. [Step 1: Configure Terraform Cloud](#step-1-configure-terraform-cloud)
+3. [Step 1: Configure GitHub Access](#step-1-configure-terraform-cloud)
 4. [Step 2: Configure AWS Credentials](#step-2-configure-aws-credentials)
 5. [Step 3: Create Terraform Configuration](#step-3-create-terraform-configuration)
 6. [Step 4: Deploy Monitoring Stack](#step-4-deploy-monitoring-stack)
@@ -58,7 +58,7 @@ The **WeAura Monitoring Stack** is a complete observability solution delivered a
 │  │  │ Tempo    │  │         └──────────────────┘           │
 │  │  │Prometheus│  │                                         │
 │  │  │Pyroscope │  │         ┌──────────────────┐           │
-│  │  └──────────┘  │         │ WeAura ECR       │           │
+│  │  └──────────┘  │         │ WeAura Harbor       │           │
 │  │                │         │ (Cross-Account)  │           │
 │  └────────────────┘         └──────────────────┘           │
 │         ▲                            ▲                      │
@@ -66,7 +66,7 @@ The **WeAura Monitoring Stack** is a complete observability solution delivered a
 │         └────────────────┬───────────┘                      │
 │                          │                                  │
 │                   Terraform Module                          │
-│            (app.terraform.io/weauratech)                    │
+│            (git::https://github.com/...)                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -97,13 +97,13 @@ Before you begin, ensure you have:
 
 ### Required Access
 
-- ✅ **Terraform Cloud token** (provided by WeAura)
+- ✅ **GitHub personal access token** (provided by WeAura)
 - ✅ **AWS account** with EKS cluster
 - ✅ **AWS permissions**:
   - IAM: Create roles and policies
   - S3: Create and manage buckets
   - EKS: Access to cluster
-  - ECR: Pull images from WeAura registry (cross-account)
+  - Harbor: Pull charts from WeAura registry
 
 ### Cluster Requirements
 
@@ -114,39 +114,32 @@ Before you begin, ensure you have:
 
 ---
 
-## Step 1: Configure Terraform Cloud
+## Step 1: Configure GitHub Access
 
-### 1.1: Log into Terraform Cloud
+### 1.1: Configure GitHub Token
 
-You need a Terraform Cloud token provided by WeAura to access the `monitoring-stack` module.
+You need a GitHub personal access token provided by WeAura to access the `weaura-terraform-modules` repository.
 
 ```bash
-# Interactive login (recommended)
-terraform login app.terraform.io
-```
+# Configure Git to use credential helper
+git config --global credential.helper store
 
-When prompted, paste the token provided by WeAura.
+When cloning or pulling from the repository, Git will prompt for your GitHub username and token (use token as password).
 
-### 1.2: Alternative - Manual Token Configuration
+### 1.2: Alternative - Environment Variable
 
-Create or edit `~/.terraform.d/credentials.tfrc.json`:
+Set the GitHub token as an environment variable for Terraform to use:
 
-```json
-{
-  "credentials": {
-    "app.terraform.io": {
-      "token": "YOUR_WEAURA_PROVIDED_TOKEN"
-    }
-  }
-}
+```bash
+export GITHUB_TOKEN="YOUR_WEAURA_PROVIDED_TOKEN"
 ```
 
 ### 1.3: Verify Access
 
 ```bash
-# Test that Terraform can authenticate
-terraform version
-# Should show Terraform version without errors
+# Test repository access
+git ls-remote https://github.com/weauratech/weaura-terraform-modules.git
+# Should show refs without authentication errors
 ```
 
 ---
@@ -265,7 +258,7 @@ provider "helm" {
 # --------------------------------
 
 module "monitoring_stack" {
-  source  = "app.terraform.io/weauratech/monitoring-stack/aws"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
   version = "1.0.0"
 
   # Cluster Configuration
@@ -276,8 +269,8 @@ module "monitoring_stack" {
   namespace        = "monitoring"
   create_namespace = true
 
-  # Chart Configuration (WeAura ECR)
-  chart_repository = "oci://950242546328.dkr.ecr.us-east-2.amazonaws.com/weaura-vendorized/charts"
+  # Chart Configuration (WeAura Harbor)
+  chart_repository = "oci://registry.dev.weaura.ai/weaura-vendorized"
   chart_version    = "0.1.0"
 
   # S3 Storage (automatically created)
@@ -498,7 +491,7 @@ terraform init
 **Expected output**:
 ```
 Initializing modules...
-Downloading app.terraform.io/weauratech/monitoring-stack/aws 1.0.0...
+Downloading git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0 1.0.0...
 
 Initializing the backend...
 
@@ -748,7 +741,7 @@ To update the monitoring stack to a newer version:
 ```hcl
 # In main.tf, update version
 module "monitoring_stack" {
-  source  = "app.terraform.io/weauratech/monitoring-stack/aws"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
   version = "1.1.0"  # Update this
   # ...
 }
@@ -798,11 +791,11 @@ Then `terraform apply`.
 **Solution**:
 ```bash
 # Re-authenticate
-terraform login app.terraform.io
+# Re-authenticate with GitHub
+git config --global credential.helper store
 
-# Verify credentials file
-cat ~/.terraform.d/credentials.tfrc.json
-
+# Test repository access
+git ls-remote https://github.com/weauratech/weaura-terraform-modules.git
 # Re-initialize
 rm -rf .terraform .terraform.lock.hcl
 terraform init
@@ -810,20 +803,21 @@ terraform init
 
 ---
 
-### Issue: "Error authenticating to ECR"
+### Issue: "Error pulling from Harbor registry"
 
-**Cause**: Cross-account ECR access not configured.
+**Cause**: Harbor authentication failed or insufficient permissions.
 
 **Solution**:
 ```bash
-# Verify AWS credentials
-aws sts get-caller-identity
+# Verify Harbor credentials (robot account)
+docker login registry.dev.weaura.ai
+# Username: robot$client-name
+# Password: [provided by WeAura]
 
-# Test ECR access
-aws ecr describe-repositories --region us-east-2 \
-  --registry-id 950242546328
+# Test chart access
+helm pull oci://registry.dev.weaura.ai/weaura-vendorized/weaura-monitoring --version 0.1.0
 
-# Contact WeAura support if access denied
+# Contact WeAura support if access denied or credentials invalid
 ```
 
 ---

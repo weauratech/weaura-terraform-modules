@@ -15,116 +15,107 @@ This document contains the credentials and access information required to deploy
 
 ---
 
-## 🏢 Terraform Cloud Access
+## 🏢 GitHub Repository Access
 
 ### Organization Details
 
-- **Organization**: `weauratech`
-- **Registry URL**: `app.terraform.io/weauratech`
+- **Organization**: `weauratech` (GitHub)
+- **Repository URL**: `https://github.com/weauratech/weaura-terraform-modules`
 
-### Team API Token
+### GitHub Personal Access Token
 
 **Token**: `[REDACTED - See 1Password/Vault]`
 
 **Token Name**: `client-[CLIENT_NAME]-monitoring-stack`  
 **Created**: `[DATE]`  
 **Expires**: `[EXPIRY_DATE]`  
-**Permissions**: Read access to `monitoring-stack` and `ecr-charts` modules
+**Permissions**: Read access to `weaura-terraform-modules` repository
 
 ### Usage
 
-#### Option 1: Interactive Login (Recommended)
+#### Option 1: Git Credential Helper (Recommended)
 
 ```bash
-terraform login app.terraform.io
+git config --global credential.helper store
 ```
 
-When prompted, paste the token provided above.
+When cloning or pulling, Git will prompt for username (use GitHub username) and password (use the token).
 
-#### Option 2: Manual Configuration
+#### Option 2: Environment Variable
 
-Create or edit `~/.terraform.d/credentials.tfrc.json`:
+Set as environment variable:
 
-```json
-{
-  "credentials": {
-    "app.terraform.io": {
-      "token": "[PASTE_TOKEN_HERE]"
-    }
-  }
-}
-```
-
-**File permissions**:
 ```bash
-chmod 600 ~/.terraform.d/credentials.tfrc.json
+export GITHUB_TOKEN="[PASTE_TOKEN_HERE]"
 ```
+
 
 ### Verification
 
 ```bash
-# Test authentication
-terraform init
-# Should successfully download modules without prompting for credentials
+# Test repository access
+git ls-remote https://github.com/weauratech/weaura-terraform-modules.git
+# Should show refs without authentication errors
 ```
 
 ---
 
-## 📦 AWS ECR Registry Access
+## 📦 Harbor Registry Access
 
 ### Registry Information
 
-- **Registry**: `950242546328.dkr.ecr.us-east-2.amazonaws.com`
-- **Repository**: `weaura-vendorized/charts`
-- **Region**: `us-east-2`
-- **WeAura Account ID**: `950242546328`
+- **Registry**: `registry.dev.weaura.ai`
+- **Chart Repository**: `weaura-vendorized`
+- **Harbor Location**: `dev.weaura.ai`
+- **Harbor Project**: `weaura-vendorized`
 
 ### Chart Details
 
 - **Chart Name**: `weaura-monitoring`
 - **Current Version**: `0.1.0`
-- **OCI URL**: `oci://950242546328.dkr.ecr.us-east-2.amazonaws.com/weaura-vendorized/charts/weaura-monitoring:0.1.0`
+- **OCI URL**: `oci://registry.dev.weaura.ai/weaura-vendorized/weaura-monitoring:0.1.0`
 
 ### Authentication
 
 **Automatic** (via Terraform module):
-- The `monitoring-stack` Terraform module handles ECR authentication automatically
-- Uses IRSA (IAM Roles for Service Accounts) for secure, credential-free access
-- No manual ECR login required
+- The `monitoring-stack` Terraform module handles Harbor authentication automatically
+- Uses Harbor robot accounts for secure, credential-based access
+- No manual Harbor login required for Terraform usage
 
 **Manual** (for direct Helm access - optional):
-- Requires cross-account IAM role configured by WeAura
+- Requires Harbor robot account configured by WeAura
 - Contact WeAura support if you need direct Helm chart access
 
 ### Verification
 
 ```bash
-# Verify cross-account ECR access (optional test)
-aws ecr describe-repositories \
-  --region us-east-2 \
-  --registry-id 950242546328 \
-  --repository-names weaura-vendorized/charts/weaura-monitoring
-```
+# Verify Harbor access (requires robot account credentials)
+docker login registry.dev.weaura.ai
+# Username: robot$client-name
+# Password: [provided by WeAura]
 
-**Expected**: Repository details returned (if cross-account access configured)  
-**If access denied**: Normal - Terraform module will handle authentication via IRSA
+# Test chart pull
+helm pull oci://registry.dev.weaura.ai/weaura-vendorized/weaura-monitoring --version 0.1.0
+
+**Expected**: Chart pulled successfully (if Harbor credentials provided)
+**If access denied**: Contact WeAura support for Harbor robot account credentials
 
 ---
 
 ## 📦 Module Information
 
-### ECR Charts Module
+### Harbor Charts Access
 
-**Purpose**: Manage ECR repositories for OCI charts (optional - for advanced users)
+**Purpose**: Harbor chart repository access (managed by WeAura)
 
-- **Source**: `app.terraform.io/weauratech/ecr-charts/aws`
+- **Source**: `git::https://github.com/weauratech/weaura-terraform-modules.git//modules/ecr-charts?ref=v1.0.0`
 - **Current Version**: `1.0.0`
-- **Documentation**: https://registry.terraform.io/modules/weauratech/ecr-charts/aws/latest
+- **Documentation**: See CLIENT_GUIDE.md for Harbor registry usage
 
 **Usage**:
 ```hcl
 module "ecr_charts" {
-  source  = "app.terraform.io/weauratech/ecr-charts/aws"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/ecr-charts?ref=v1.0.0"
   version = "1.0.0"
   
   # ... configuration ...
@@ -135,22 +126,22 @@ module "ecr_charts" {
 
 **Purpose**: Deploy complete WeAura monitoring stack (recommended - primary module)
 
-- **Source**: `app.terraform.io/weauratech/monitoring-stack/aws`
+- **Source**: `git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0`
 - **Current Version**: `1.0.0`
-- **Documentation**: https://registry.terraform.io/modules/weauratech/monitoring-stack/aws/latest
+- **Documentation**: See CLIENT_GUIDE.md for complete deployment guide
 - **Chart Version**: `weaura-monitoring` v0.1.0
 
 **Usage**:
 ```hcl
 module "monitoring_stack" {
-  source  = "app.terraform.io/weauratech/monitoring-stack/aws"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
   version = "1.0.0"
   
   cluster_name         = "your-eks-cluster"
   region               = "us-east-1"
   namespace            = "monitoring"
   create_namespace     = true
-  chart_repository     = "oci://950242546328.dkr.ecr.us-east-2.amazonaws.com/weaura-vendorized/charts"
+  chart_repository     = "oci://registry.dev.weaura.ai/weaura-vendorized"
   chart_version        = "0.1.0"
   create_s3_buckets    = true
   s3_bucket_prefix     = "your-company-monitoring"
@@ -176,11 +167,11 @@ module "monitoring_stack" {
 
 ## 🔧 Quick Start
 
-### Step 1: Configure Terraform Cloud
+### Step 1: Configure GitHub Access
 
 ```bash
-# Login to Terraform Cloud
-terraform login app.terraform.io
+# Configure GitHub Token
+git config --global credential.helper store
 # Paste token when prompted
 ```
 
@@ -235,14 +226,14 @@ provider "helm" {
 }
 
 module "monitoring_stack" {
-  source  = "app.terraform.io/weauratech/monitoring-stack/aws"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
   version = "1.0.0"
 
   cluster_name = "your-cluster-name"
   region       = "us-east-1"
   namespace    = "monitoring"
   
-  chart_repository  = "oci://950242546328.dkr.ecr.us-east-2.amazonaws.com/weaura-vendorized/charts"
+  chart_repository  = "oci://registry.dev.weaura.ai/weaura-vendorized"
   chart_version     = "0.1.0"
   
   create_s3_buckets = true
@@ -332,7 +323,7 @@ When contacting support, please provide:
 Use this checklist to ensure successful deployment:
 
 ### Pre-Deployment
-- [ ] Terraform Cloud token received and stored securely
+- [ ] GitHub personal access token received and stored securely
 - [ ] AWS credentials configured (`aws sts get-caller-identity` works)
 - [ ] EKS cluster access verified (`kubectl get nodes` works)
 - [ ] Reviewed CLIENT_GUIDE.md documentation
@@ -372,7 +363,7 @@ To update:
 ```hcl
 # In main.tf, update version
 module "monitoring_stack" {
-  source  = "app.terraform.io/weauratech/monitoring-stack/aws"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
   version = "1.1.0"  # Update to new version
   # ...
 }
@@ -387,13 +378,13 @@ terraform apply
 
 ### Token Rotation
 
-Terraform Cloud tokens expire on: `[EXPIRY_DATE]`
+GitHub personal access tokens expire on: `[EXPIRY_DATE]`
 
 WeAura will provide a new token before expiration. To update:
 
 ```bash
 # Re-login with new token
-terraform login app.terraform.io
+git config --global credential.helper store
 
 # Or update credentials file manually
 nano ~/.terraform.d/credentials.tfrc.json
@@ -414,7 +405,7 @@ nano ~/.terraform.d/credentials.tfrc.json
 
 ### Access Control
 
-- Limit Terraform Cloud token access to DevOps team only
+- Limit GitHub personal access token access to DevOps team only
 - Use separate tokens for different environments (prod/staging)
 - Rotate tokens regularly (at least every 90 days)
 - Revoke tokens immediately when team members leave
