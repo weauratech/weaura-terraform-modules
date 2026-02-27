@@ -2,7 +2,7 @@
 # Module Provider Requirements
 # ============================================================
 # Required providers for WeAura Monitoring Stack deployment.
-# Deploys umbrella Helm chart from ECR OCI registry.
+# Deploys umbrella Helm chart from Harbor OCI registry.
 # Provider configuration is done at the root level.
 # ============================================================
 

@@ -1,45 +1,7 @@
 # ============================================================
-# IAM Resources for ECR Cross-Account Pull
+# IAM Resources for Harbor Chart Pull and S3 Access
 # ============================================================
 
-# --------------------------------
-# IAM Policy for ECR Pull
-# --------------------------------
-
-resource "aws_iam_policy" "ecr_pull" {
-  name        = "${var.cluster_name}-monitoring-ecr-pull"
-  description = "Allow pulling Helm charts from WeAura ECR registry (cross-account)"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "ECRGetAuthorizationToken"
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken"
-        ]
-        Resource = "*"
-      },
-      {
-        Sid    = "ECRPullCharts"
-        Effect = "Allow"
-        Action = [
-          "ecr:BatchGetImage",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:DescribeImages",
-          "ecr:DescribeRepositories"
-        ]
-        Resource = [
-          "arn:aws:ecr:${var.ecr_region}:${var.ecr_account_id}:repository/weaura-vendorized/charts/*"
-        ]
-      }
-    ]
-  })
-
-  tags = local.common_tags
-}
 
 # --------------------------------
 # IAM Role for IRSA (if enabled)
@@ -49,7 +11,7 @@ resource "aws_iam_role" "monitoring" {
   count = var.aws_config.use_irsa && var.cloud_provider == "aws" ? 1 : 0
 
   name        = "${var.cluster_name}-monitoring"
-  description = "IAM role for WeAura monitoring stack with S3 and ECR access"
+  description = "IAM role for WeAura monitoring stack with S3 access"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -76,16 +38,6 @@ resource "aws_iam_role" "monitoring" {
   tags = local.common_tags
 }
 
-# --------------------------------
-# Attach ECR Pull Policy to IRSA Role
-# --------------------------------
-
-resource "aws_iam_role_policy_attachment" "ecr_pull" {
-  count = var.aws_config.use_irsa && var.cloud_provider == "aws" ? 1 : 0
-
-  role       = aws_iam_role.monitoring[0].name
-  policy_arn = aws_iam_policy.ecr_pull.arn
-}
 
 # --------------------------------
 # IAM Policy for S3 Access (Loki, Mimir, Tempo, Pyroscope)

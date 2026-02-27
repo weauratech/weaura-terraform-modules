@@ -1,17 +1,14 @@
 # ============================================================
 # Helm Release - WeAura Monitoring Stack
 # ============================================================
-# Deploys umbrella chart from WeAura ECR OCI registry.
+# Deploys umbrella chart from WeAura Harbor OCI registry.
 # Chart pulls automatically via IAM cross-account authentication.
 # ============================================================
 
 # --------------------------------
-# ECR Authentication Data
+# Harbor Authentication Data
 # --------------------------------
 
-data "aws_ecr_authorization_token" "token" {
-  registry_id = var.ecr_account_id
-}
 
 # --------------------------------
 # Helm Release
@@ -25,9 +22,9 @@ resource "helm_release" "monitoring" {
   version    = var.chart_version
 
 
-  # ECR authentication (automatic via AWS provider)
-  repository_username = "AWS"
-  repository_password = data.aws_ecr_authorization_token.token.password
+  # Harbor authentication (via provided credentials)
+  repository_username = var.harbor_username
+  repository_password = var.harbor_password
 
   # Wait for all components to be ready
   wait             = true

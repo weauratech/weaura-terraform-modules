@@ -17,19 +17,23 @@ variable "region" {
 }
 
 # --------------------------------
-# ECR Configuration (WeAura Account)
+# Harbor Configuration
 # --------------------------------
 
-variable "ecr_account_id" {
-  description = "AWS account ID where WeAura charts are stored"
+variable "harbor_url" {
+  description = "Harbor registry hostname/project (e.g., registry.dev.weaura.ai/weaura-vendorized)"
   type        = string
-  default     = "950242546328"
 }
 
-variable "ecr_region" {
-  description = "AWS region where WeAura ECR is located"
+variable "harbor_username" {
+  description = "Harbor robot account username for chart pull"
   type        = string
-  default     = "us-east-2"
+}
+
+variable "harbor_password" {
+  description = "Harbor robot account password for chart pull"
+  type        = string
+  sensitive   = true
 }
 
 variable "chart_version" {

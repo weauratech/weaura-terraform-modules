@@ -4,11 +4,11 @@
 
 locals {
   # --------------------------------
-  # ECR Configuration
+  # --------------------------------
+  # Harbor Configuration
   # --------------------------------
 
-  ecr_repository = "${var.ecr_account_id}.dkr.ecr.${var.ecr_region}.amazonaws.com/weaura-vendorized/charts"
-  chart_oci_url  = "oci://${local.ecr_repository}"
+  chart_oci_url = "oci://${var.harbor_url}/weaura-vendorized"
 
   # --------------------------------
   # S3 Bucket Names (if using AWS)
