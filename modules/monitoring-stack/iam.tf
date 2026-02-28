@@ -1,101 +1,118 @@
 # ============================================================
-# IAM Resources for Harbor Chart Pull and S3 Access
+# AWS IAM - IRSA for Observability Stack
+# ============================================================
+# IAM Roles for Service Accounts (IRSA) for Loki, Mimir, and Tempo.
+# Each component receives a dedicated role with access to its S3 buckets.
+# Only created when cloud_provider = "aws"
 # ============================================================
 
+# -----------------------------
+# Assume Role Policy (for_each)
+# -----------------------------
+data "aws_iam_policy_document" "irsa_assume_role" {
+  for_each = local.enabled_irsa
 
-# --------------------------------
-# IAM Role for IRSA (if enabled)
-# --------------------------------
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
 
-resource "aws_iam_role" "monitoring" {
-  count = var.aws_config.use_irsa && var.cloud_provider == "aws" ? 1 : 0
+    principals {
+      type        = "Federated"
+      identifiers = [local.oidc_provider_arn]
+    }
 
-  name        = "${var.cluster_name}-monitoring"
-  description = "IAM role for WeAura monitoring stack with S3 access"
+    condition {
+      test     = "StringEquals"
+      variable = "${local.oidc_provider_url}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Federated = local.oidc_provider_arn
-      }
-      Action = "sts:AssumeRoleWithWebIdentity"
-      Condition = {
-        StringEquals = {
-          "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:aud" = "sts.amazonaws.com"
-          "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" = [
-            "system:serviceaccount:${var.namespace}:loki",
-            "system:serviceaccount:${var.namespace}:mimir",
-            "system:serviceaccount:${var.namespace}:tempo",
-            "system:serviceaccount:${var.namespace}:pyroscope"
-          ]
-        }
-      }
-    }]
-  })
-
-  tags = local.common_tags
+    # Each component uses multiple service accounts
+    condition {
+      test     = "StringLike"
+      variable = "${local.oidc_provider_url}:sub"
+      values = [
+        "system:serviceaccount:${each.value.namespace}:${each.key}",
+        "system:serviceaccount:${each.value.namespace}:${each.key}-*",
+      ]
+    }
+  }
 }
 
+# -----------------------------
+# IAM Roles (for_each)
+# -----------------------------
+resource "aws_iam_role" "irsa" {
+  for_each = local.enabled_irsa
 
-# --------------------------------
-# IAM Policy for S3 Access (Loki, Mimir, Tempo, Pyroscope)
-# --------------------------------
+  name               = local.irsa_role_names[each.key]
+  assume_role_policy = data.aws_iam_policy_document.irsa_assume_role[each.key].json
 
-resource "aws_iam_policy" "s3_access" {
-  count = var.aws_config.use_irsa && var.cloud_provider == "aws" ? 1 : 0
-
-  name        = "${var.cluster_name}-monitoring-s3"
-  description = "S3 access for monitoring stack storage"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "S3ListBuckets"
-        Effect = "Allow"
-        Action = [
-          "s3:ListBucket",
-          "s3:GetBucketLocation"
-        ]
-        Resource = [
-          "arn:aws:s3:::${local.loki_s3_bucket}",
-          "arn:aws:s3:::${local.mimir_s3_bucket}",
-          "arn:aws:s3:::${local.tempo_s3_bucket}",
-          "arn:aws:s3:::${local.pyroscope_s3_bucket}"
-        ]
-      },
-      {
-        Sid    = "S3ObjectOperations"
-        Effect = "Allow"
-        Action = [
-          "s3:PutObject",
-          "s3:GetObject",
-          "s3:DeleteObject",
-          "s3:ListMultipartUploadParts",
-          "s3:AbortMultipartUpload"
-        ]
-        Resource = [
-          "arn:aws:s3:::${local.loki_s3_bucket}/*",
-          "arn:aws:s3:::${local.mimir_s3_bucket}/*",
-          "arn:aws:s3:::${local.tempo_s3_bucket}/*",
-          "arn:aws:s3:::${local.pyroscope_s3_bucket}/*"
-        ]
-      }
-    ]
+  tags = merge(local.default_tags, {
+    Name      = local.irsa_role_names[each.key]
+    Component = each.key
+    Namespace = each.value.namespace
   })
-
-  tags = local.common_tags
 }
 
-# --------------------------------
-# Attach S3 Policy to IRSA Role
-# --------------------------------
+# -----------------------------
+# S3 Policy Documents (for_each)
+# -----------------------------
+# For each component, create policy with access to its buckets
+data "aws_iam_policy_document" "irsa_s3" {
+  for_each = local.enabled_irsa
 
-resource "aws_iam_role_policy_attachment" "s3_access" {
-  count = var.aws_config.use_irsa && var.cloud_provider == "aws" ? 1 : 0
+  # For each bucket associated with the component, create statements
+  dynamic "statement" {
+    for_each = each.value.bucket_keys
+    content {
+      sid    = "${replace(title(replace(statement.value, "_", " ")), " ", "")}Bucket"
+      effect = "Allow"
+      actions = [
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+      ]
+      resources = [aws_s3_bucket.this[statement.value].arn]
+    }
+  }
 
-  role       = aws_iam_role.monitoring[0].name
-  policy_arn = aws_iam_policy.s3_access[0].arn
+  dynamic "statement" {
+    for_each = each.value.bucket_keys
+    content {
+      sid    = "${replace(title(replace(statement.value, "_", " ")), " ", "")}Objects"
+      effect = "Allow"
+      actions = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+      ]
+      resources = ["${aws_s3_bucket.this[statement.value].arn}/*"]
+    }
+  }
+}
+
+# -----------------------------
+# IAM Policies (for_each)
+# -----------------------------
+resource "aws_iam_policy" "irsa_s3" {
+  for_each = local.enabled_irsa
+
+  name        = "${local.irsa_role_names[each.key]}-s3-policy"
+  description = "IAM policy for ${each.key} to access S3 buckets"
+  policy      = data.aws_iam_policy_document.irsa_s3[each.key].json
+
+  tags = merge(local.default_tags, {
+    Name      = "${local.irsa_role_names[each.key]}-s3-policy"
+    Component = each.key
+  })
+}
+
+# -----------------------------
+# Policy Attachments (for_each)
+# -----------------------------
+resource "aws_iam_role_policy_attachment" "irsa_s3" {
+  for_each = local.enabled_irsa
+
+  role       = aws_iam_role.irsa[each.key].name
+  policy_arn = aws_iam_policy.irsa_s3[each.key].arn
 }

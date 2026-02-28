@@ -1,166 +1,104 @@
 # ============================================================
-# S3 Buckets for Monitoring Stack Storage
+# AWS S3 - Observability Stack Storage
 # ============================================================
-# Creates S3 buckets for Loki, Mimir, Tempo, and Pyroscope
-# when deploying on AWS.
+# S3 buckets for Loki, Mimir, and Tempo data storage.
+# Each component uses dedicated buckets for chunks/blocks and ruler.
+# Only created when cloud_provider = "aws"
 # ============================================================
 
-# --------------------------------
-# Loki S3 Bucket
-# --------------------------------
+# -----------------------------
+# S3 Buckets (for_each)
+# -----------------------------
+resource "aws_s3_bucket" "this" {
+  for_each = local.enabled_s3_buckets
 
-resource "aws_s3_bucket" "loki" {
-  count = var.cloud_provider == "aws" && var.loki.enabled ? 1 : 0
+  bucket = each.value.bucket_name
 
-  bucket = local.loki_s3_bucket
-
-  tags = merge(
-    local.common_tags,
-    {
-      Component = "loki"
-      Purpose   = "log-storage"
-    }
-  )
+  tags = merge(local.default_tags, {
+    Name      = each.value.bucket_name
+    Component = each.value.component
+    Purpose   = each.value.purpose
+  })
 }
 
-resource "aws_s3_bucket_versioning" "loki" {
-  count = var.cloud_provider == "aws" && var.loki.enabled ? 1 : 0
+# -----------------------------
+# Versioning (for_each)
+# -----------------------------
+resource "aws_s3_bucket_versioning" "this" {
+  for_each = local.enabled_s3_buckets
 
-  bucket = aws_s3_bucket.loki[0].id
+  bucket = aws_s3_bucket.this[each.key].id
 
   versioning_configuration {
     status = "Enabled"
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "loki" {
-  count = var.cloud_provider == "aws" && var.loki.enabled ? 1 : 0
+# -----------------------------
+# Encryption (for_each)
+# -----------------------------
+# Uses customer-managed KMS key if provided, otherwise falls back to AES256.
+# Providing a KMS CMK is recommended for enhanced security posture.
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  for_each = local.enabled_s3_buckets
 
-  bucket = aws_s3_bucket.loki[0].id
+  bucket = aws_s3_bucket.this[each.key].id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = var.s3_kms_key_arn != "" ? "aws:kms" : "AES256"
+      kms_master_key_id = var.s3_kms_key_arn != "" ? var.s3_kms_key_arn : null
     }
+    bucket_key_enabled = true
   }
 }
 
-# --------------------------------
-# Mimir S3 Bucket
-# --------------------------------
+# -----------------------------
+# Public Access Block (for_each)
+# -----------------------------
+resource "aws_s3_bucket_public_access_block" "this" {
+  for_each = local.enabled_s3_buckets
 
-resource "aws_s3_bucket" "mimir" {
-  count = var.cloud_provider == "aws" && var.mimir.enabled ? 1 : 0
+  bucket = aws_s3_bucket.this[each.key].id
 
-  bucket = local.mimir_s3_bucket
-
-  tags = merge(
-    local.common_tags,
-    {
-      Component = "mimir"
-      Purpose   = "metrics-storage"
-    }
-  )
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_versioning" "mimir" {
-  count = var.cloud_provider == "aws" && var.mimir.enabled ? 1 : 0
+# -----------------------------
+# Lifecycle Configuration (for_each)
+# -----------------------------
+# Only for buckets that need lifecycle rules
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  for_each = local.s3_buckets_with_lifecycle
 
-  bucket = aws_s3_bucket.mimir[0].id
+  bucket = aws_s3_bucket.this[each.key].id
 
-  versioning_configuration {
+  rule {
+    id     = "transition-to-ia"
     status = "Enabled"
-  }
-}
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "mimir" {
-  count = var.cloud_provider == "aws" && var.mimir.enabled ? 1 : 0
+    # Apply to all objects in the bucket
+    filter {}
 
-  bucket = aws_s3_bucket.mimir[0].id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+    transition {
+      days          = each.value.lifecycle_days.transition_ia
+      storage_class = "STANDARD_IA"
     }
-  }
-}
 
-# --------------------------------
-# Tempo S3 Bucket
-# --------------------------------
-
-resource "aws_s3_bucket" "tempo" {
-  count = var.cloud_provider == "aws" && var.tempo.enabled ? 1 : 0
-
-  bucket = local.tempo_s3_bucket
-
-  tags = merge(
-    local.common_tags,
-    {
-      Component = "tempo"
-      Purpose   = "tracing-storage"
+    transition {
+      days          = each.value.lifecycle_days.transition_glacier
+      storage_class = "GLACIER"
     }
-  )
-}
 
-resource "aws_s3_bucket_versioning" "tempo" {
-  count = var.cloud_provider == "aws" && var.tempo.enabled ? 1 : 0
-
-  bucket = aws_s3_bucket.tempo[0].id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "tempo" {
-  count = var.cloud_provider == "aws" && var.tempo.enabled ? 1 : 0
-
-  bucket = aws_s3_bucket.tempo[0].id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+    expiration {
+      days = each.value.lifecycle_days.expiration
     }
-  }
-}
 
-# --------------------------------
-# Pyroscope S3 Bucket
-# --------------------------------
-
-resource "aws_s3_bucket" "pyroscope" {
-  count = var.cloud_provider == "aws" && var.pyroscope.enabled ? 1 : 0
-
-  bucket = local.pyroscope_s3_bucket
-
-  tags = merge(
-    local.common_tags,
-    {
-      Component = "pyroscope"
-      Purpose   = "profiling-storage"
-    }
-  )
-}
-
-resource "aws_s3_bucket_versioning" "pyroscope" {
-  count = var.cloud_provider == "aws" && var.pyroscope.enabled ? 1 : 0
-
-  bucket = aws_s3_bucket.pyroscope[0].id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "pyroscope" {
-  count = var.cloud_provider == "aws" && var.pyroscope.enabled ? 1 : 0
-
-  bucket = aws_s3_bucket.pyroscope[0].id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+    noncurrent_version_expiration {
+      noncurrent_days = 30
     }
   }
 }
