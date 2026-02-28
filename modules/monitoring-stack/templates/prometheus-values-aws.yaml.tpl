@@ -29,6 +29,14 @@ defaultRules:
 prometheusOperator:
   enabled: true
 
+  # Disable TLS on operator web server.
+  # The admission webhook patch job creates secrets with 'tls.crt'/'tls.key' keys,
+  # but when certManager is disabled the operator expects '/cert/cert' and '/cert/key'.
+  # This mismatch causes CrashLoopBackOff. Disabling TLS avoids the issue entirely
+  # and is safe for in-cluster communication.
+  tls:
+    enabled: false
+
   admissionWebhooks:
     enabled: true
     patch:
