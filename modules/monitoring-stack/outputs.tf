@@ -1,165 +1,348 @@
 # ============================================================
-# Output Values
+# Outputs - Grafana OSS Module (Multi-Cloud)
+# ============================================================
+# Module outputs for integration with other systems.
+# Provides cloud-agnostic and cloud-specific values.
 # ============================================================
 
-# --------------------------------
-# Namespace Information
-# --------------------------------
-
-output "namespace" {
-  description = "Kubernetes namespace where monitoring stack is deployed"
-  value       = var.namespace
-}
-
-# --------------------------------
-# Grafana Outputs
-# --------------------------------
+# ============================================================
+# GRAFANA OUTPUTS
+# ============================================================
 
 output "grafana_url" {
-  description = "Internal Grafana service URL (cluster-local)"
-  value       = var.grafana.enabled ? "http://grafana.${var.namespace}.svc.cluster.local" : null
+  description = "Grafana URL"
+  value       = var.enable_grafana ? "https://${var.grafana_domain}" : null
 }
 
-output "grafana_admin_username" {
+output "grafana_admin_user" {
   description = "Grafana admin username"
-  value       = var.grafana.enabled ? "admin" : null
+  value       = var.enable_grafana ? "admin" : null
 }
 
-output "grafana_ingress_host" {
-  description = "Grafana ingress hostname (if ingress is enabled)"
-  value       = var.grafana.enabled && var.grafana.ingress_enabled ? var.grafana.ingress_host : null
+output "grafana_namespace" {
+  description = "Kubernetes namespace where Grafana is deployed"
+  value       = var.enable_grafana ? var.monitoring_namespace : null
 }
 
-# --------------------------------
-# Component Endpoints
-# --------------------------------
-
-output "loki_url" {
-  description = "Internal Loki service URL (cluster-local)"
-  value       = var.loki.enabled ? "http://loki.${var.namespace}.svc.cluster.local:3100" : null
+output "grafana_helm_release_name" {
+  description = "Grafana Helm release name"
+  value       = var.enable_grafana ? helm_release.monitoring.name : null
 }
 
-output "mimir_url" {
-  description = "Internal Mimir service URL (cluster-local)"
-  value       = var.mimir.enabled ? "http://mimir.${var.namespace}.svc.cluster.local:8080" : null
+output "grafana_helm_release_version" {
+  description = "Grafana Helm chart version deployed"
+  value       = var.enable_grafana ? helm_release.monitoring.version : null
 }
 
-output "tempo_url" {
-  description = "Internal Tempo service URL (cluster-local)"
-  value       = var.tempo.enabled ? "http://tempo.${var.namespace}.svc.cluster.local:3100" : null
-}
+# ============================================================
+# PROMETHEUS OUTPUTS
+# ============================================================
 
 output "prometheus_url" {
-  description = "Internal Prometheus service URL (cluster-local)"
-  value       = var.prometheus.enabled ? "http://prometheus.${var.namespace}.svc.cluster.local:9090" : null
+  description = "Prometheus internal service URL"
+  value       = var.enable_prometheus ? local.datasource_urls.prometheus : null
 }
+
+output "prometheus_namespace" {
+  description = "Kubernetes namespace where Prometheus is deployed"
+  value       = var.enable_prometheus ? var.monitoring_namespace : null
+}
+
+output "prometheus_helm_release_name" {
+  description = "Prometheus Helm release name"
+  value       = var.enable_prometheus ? helm_release.monitoring.name : null
+}
+
+# ============================================================
+# LOKI OUTPUTS
+# ============================================================
+
+output "loki_url" {
+  description = "Loki internal service URL"
+  value       = var.enable_loki ? local.datasource_urls.loki : null
+}
+
+output "loki_namespace" {
+  description = "Kubernetes namespace where Loki is deployed"
+  value       = var.enable_loki ? var.monitoring_namespace : null
+}
+
+output "loki_helm_release_name" {
+  description = "Loki Helm release name"
+  value       = var.enable_loki ? helm_release.monitoring.name : null
+}
+
+# ============================================================
+# MIMIR OUTPUTS
+# ============================================================
+
+output "mimir_url" {
+  description = "Mimir internal service URL (query endpoint)"
+  value       = var.enable_mimir ? local.datasource_urls.mimir : null
+}
+
+output "mimir_push_url" {
+  description = "Mimir push endpoint for remote write"
+  value       = var.enable_mimir ? local.datasource_urls.mimir_push : null
+}
+
+output "mimir_namespace" {
+  description = "Kubernetes namespace where Mimir is deployed"
+  value       = var.enable_mimir ? var.monitoring_namespace : null
+}
+
+output "mimir_helm_release_name" {
+  description = "Mimir Helm release name"
+  value       = var.enable_mimir ? helm_release.monitoring.name : null
+}
+
+# ============================================================
+# TEMPO OUTPUTS
+# ============================================================
+
+output "tempo_url" {
+  description = "Tempo internal service URL"
+  value       = var.enable_tempo ? local.datasource_urls.tempo : null
+}
+
+output "tempo_namespace" {
+  description = "Kubernetes namespace where Tempo is deployed"
+  value       = var.enable_tempo ? var.monitoring_namespace : null
+}
+
+output "tempo_helm_release_name" {
+  description = "Tempo Helm release name"
+  value       = var.enable_tempo ? helm_release.monitoring.name : null
+}
+
+# ============================================================
+# PYROSCOPE OUTPUTS
+# ============================================================
 
 output "pyroscope_url" {
-  description = "Internal Pyroscope service URL (cluster-local)"
-  value       = var.pyroscope.enabled ? "http://pyroscope.${var.namespace}.svc.cluster.local:4040" : null
+  description = "Pyroscope internal service URL"
+  value       = var.enable_pyroscope ? local.datasource_urls.pyroscope : null
 }
 
-# --------------------------------
-# S3 Bucket Information (AWS Only)
-# --------------------------------
+output "pyroscope_namespace" {
+  description = "Kubernetes namespace where Pyroscope is deployed"
+  value       = var.enable_pyroscope ? var.monitoring_namespace : null
+}
 
-output "s3_buckets" {
-  description = "S3 bucket names for monitoring components (AWS only)"
-  value = var.cloud_provider == "aws" ? {
-    loki      = try(aws_s3_bucket.loki[0].id, null)
-    mimir     = try(aws_s3_bucket.mimir[0].id, null)
-    tempo     = try(aws_s3_bucket.tempo[0].id, null)
-    pyroscope = try(aws_s3_bucket.pyroscope[0].id, null)
+output "pyroscope_helm_release_name" {
+  description = "Pyroscope Helm release name"
+  value       = var.enable_pyroscope ? helm_release.monitoring.name : null
+}
+
+# ============================================================
+# DATASOURCE URLS (Consolidated)
+# ============================================================
+
+output "datasource_urls" {
+  description = "Map of all datasource URLs for Grafana configuration"
+  value = {
+    prometheus = var.enable_prometheus ? local.datasource_urls.prometheus : null
+    mimir      = var.enable_mimir ? local.datasource_urls.mimir : null
+    mimir_push = var.enable_mimir ? local.datasource_urls.mimir_push : null
+    loki       = var.enable_loki ? local.datasource_urls.loki : null
+    tempo      = var.enable_tempo ? local.datasource_urls.tempo : null
+    pyroscope  = var.enable_pyroscope ? local.datasource_urls.pyroscope : null
+  }
+}
+
+# ============================================================
+# KUBERNETES OUTPUTS
+# ============================================================
+
+output "namespaces" {
+  description = "Monitoring namespace (all components share a single namespace)"
+  value = {
+    monitoring = var.monitoring_namespace
+    grafana    = var.enable_grafana ? var.monitoring_namespace : null
+    prometheus = var.enable_prometheus ? var.monitoring_namespace : null
+    loki       = var.enable_loki ? var.monitoring_namespace : null
+    mimir      = var.enable_mimir ? var.monitoring_namespace : null
+    tempo      = var.enable_tempo ? var.monitoring_namespace : null
+    pyroscope  = var.enable_pyroscope ? var.monitoring_namespace : null
+  }
+}
+
+# ============================================================
+# AWS OUTPUTS
+# ============================================================
+
+output "aws_s3_bucket_arns" {
+  description = "ARNs of S3 buckets created (AWS only)"
+  value = local.is_aws ? {
+    loki_chunks  = var.enable_loki && var.create_storage ? aws_s3_bucket.this["loki_chunks"].arn : null
+    loki_ruler   = var.enable_loki && var.create_storage ? aws_s3_bucket.this["loki_ruler"].arn : null
+    mimir_blocks = var.enable_mimir && var.create_storage ? aws_s3_bucket.this["mimir_blocks"].arn : null
+    mimir_ruler  = var.enable_mimir && var.create_storage ? aws_s3_bucket.this["mimir_ruler"].arn : null
+    tempo        = var.enable_tempo && var.create_storage ? aws_s3_bucket.this["tempo"].arn : null
   } : null
 }
 
-output "s3_bucket_arns" {
-  description = "S3 bucket ARNs for monitoring components (AWS only)"
-  value = var.cloud_provider == "aws" ? {
-    loki      = try(aws_s3_bucket.loki[0].arn, null)
-    mimir     = try(aws_s3_bucket.mimir[0].arn, null)
-    tempo     = try(aws_s3_bucket.tempo[0].arn, null)
-    pyroscope = try(aws_s3_bucket.pyroscope[0].arn, null)
+output "aws_s3_bucket_names" {
+  description = "Names of S3 buckets created (AWS only)"
+  value = local.is_aws ? {
+    loki_chunks  = var.enable_loki && var.create_storage ? aws_s3_bucket.this["loki_chunks"].id : null
+    loki_ruler   = var.enable_loki && var.create_storage ? aws_s3_bucket.this["loki_ruler"].id : null
+    mimir_blocks = var.enable_mimir && var.create_storage ? aws_s3_bucket.this["mimir_blocks"].id : null
+    mimir_ruler  = var.enable_mimir && var.create_storage ? aws_s3_bucket.this["mimir_ruler"].id : null
+    tempo        = var.enable_tempo && var.create_storage ? aws_s3_bucket.this["tempo"].id : null
   } : null
 }
 
-# --------------------------------
-# IAM Information (AWS Only)
-# --------------------------------
-
-output "iam_role_arn" {
-  description = "IAM role ARN for monitoring stack service accounts (AWS IRSA)"
-  value       = var.cloud_provider == "aws" && var.aws_config.use_irsa ? try(aws_iam_role.monitoring[0].arn, null) : null
-}
-
-output "iam_role_name" {
-  description = "IAM role name for monitoring stack service accounts (AWS IRSA)"
-  value       = var.cloud_provider == "aws" && var.aws_config.use_irsa ? try(aws_iam_role.monitoring[0].name, null) : null
-}
-
-# --------------------------------
-# Helm Release Information
-# --------------------------------
-
-output "helm_release_name" {
-  description = "Name of the Helm release"
-  value       = helm_release.monitoring.name
-}
-
-output "helm_release_version" {
-  description = "Version of the deployed Helm chart"
-  value       = helm_release.monitoring.version
-}
-
-output "helm_release_status" {
-  description = "Status of the Helm release"
-  value       = helm_release.monitoring.status
-}
-
-# --------------------------------
-# Service Accounts (AWS Only)
-# --------------------------------
-
-output "service_accounts" {
-  description = "Kubernetes service accounts created for IRSA (AWS only)"
-  value = var.cloud_provider == "aws" && var.aws_config.use_irsa ? {
-    loki      = var.loki.enabled ? try(kubernetes_service_account.loki[0].metadata[0].name, null) : null
-    mimir     = var.mimir.enabled ? try(kubernetes_service_account.mimir[0].metadata[0].name, null) : null
-    tempo     = var.tempo.enabled ? try(kubernetes_service_account.tempo[0].metadata[0].name, null) : null
-    pyroscope = var.pyroscope.enabled ? try(kubernetes_service_account.pyroscope[0].metadata[0].name, null) : null
+output "aws_iam_role_arns" {
+  description = "ARNs of IAM roles for IRSA (AWS only)"
+  value = local.is_aws ? {
+    loki  = var.enable_loki ? aws_iam_role.irsa["loki"].arn : null
+    mimir = var.enable_mimir ? aws_iam_role.irsa["mimir"].arn : null
+    tempo = var.enable_tempo ? aws_iam_role.irsa["tempo"].arn : null
   } : null
 }
 
-# --------------------------------
-# Cluster Information
-# --------------------------------
+# ============================================================
+# CLOUD-AGNOSTIC STORAGE OUTPUTS
+# ============================================================
 
-output "cluster_name" {
-  description = "EKS cluster name where monitoring is deployed"
-  value       = var.cluster_name
+output "storage_configuration" {
+  description = "Cloud-agnostic storage configuration summary"
+  value = {
+    cloud_provider = var.cloud_provider
+    storage_type   = "s3"
+    region         = local.cloud_region
+
+    # Storage identifiers (cloud-specific)
+    aws = local.is_aws ? {
+      bucket_names = {
+        loki_chunks  = var.enable_loki && var.create_storage ? aws_s3_bucket.this["loki_chunks"].id : null
+        loki_ruler   = var.enable_loki && var.create_storage ? aws_s3_bucket.this["loki_ruler"].id : null
+        mimir_blocks = var.enable_mimir && var.create_storage ? aws_s3_bucket.this["mimir_blocks"].id : null
+        mimir_ruler  = var.enable_mimir && var.create_storage ? aws_s3_bucket.this["mimir_ruler"].id : null
+        tempo        = var.enable_tempo && var.create_storage ? aws_s3_bucket.this["tempo"].id : null
+      }
+    } : null
+  }
 }
 
-output "region" {
-  description = "AWS region where monitoring is deployed"
-  value       = var.region
+# ============================================================
+# GRAFANA FOLDER OUTPUTS
+# ============================================================
+
+output "grafana_folder_uids" {
+  description = "UIDs of Grafana folders created"
+  value = var.enable_grafana && var.enable_grafana_resources ? {
+    infrastructure = grafana_folder.infrastructure[0].uid
+    kubernetes     = grafana_folder.kubernetes[0].uid
+    applications   = grafana_folder.applications[0].uid
+    sre            = grafana_folder.sre[0].uid
+    alerts         = grafana_folder.alerts[0].uid
+    prometheus     = var.enable_prometheus ? grafana_folder.prometheus[0].uid : null
+    loki           = var.enable_loki ? grafana_folder.loki[0].uid : null
+    mimir          = var.enable_mimir ? grafana_folder.mimir[0].uid : null
+    tempo          = var.enable_tempo ? grafana_folder.tempo[0].uid : null
+    pyroscope      = var.enable_pyroscope ? grafana_folder.pyroscope[0].uid : null
+    custom         = { for k, v in grafana_folder.custom : k => v.uid }
+  } : null
 }
 
-# --------------------------------
-# Component Status
-# --------------------------------
+# ============================================================
+# ALERTING OUTPUTS
+# ============================================================
 
-output "enabled_components" {
-  description = "List of enabled monitoring components"
-  value = [
-    for component in ["grafana", "loki", "mimir", "tempo", "prometheus", "pyroscope"] :
-    component if try(
-      component == "grafana" ? var.grafana.enabled :
-      component == "loki" ? var.loki.enabled :
-      component == "mimir" ? var.mimir.enabled :
-      component == "tempo" ? var.tempo.enabled :
-      component == "prometheus" ? var.prometheus.enabled :
-      component == "pyroscope" ? var.pyroscope.enabled : false,
-      false
-    )
-  ]
+output "alerting_configuration" {
+  description = "Alerting configuration summary"
+  value = {
+    provider            = var.alerting_provider
+    enabled             = var.alerting_provider != "none"
+    default_contact     = var.alerting_provider != "none" ? local.default_contact_point : null
+    notification_policy = var.enable_grafana && var.enable_grafana_resources && var.alerting_provider != "none" ? grafana_notification_policy.main[0].id : null
+  }
+}
+
+# ============================================================
+# HELM RELEASES STATUS
+# ============================================================
+
+output "helm_releases" {
+  description = "Status of all Helm releases"
+  value = {
+    grafana = var.enable_grafana ? {
+      name      = helm_release.monitoring.name
+      namespace = helm_release.monitoring.namespace
+      version   = helm_release.monitoring.version
+      status    = helm_release.monitoring.status
+    } : null
+
+    prometheus = var.enable_prometheus ? {
+      name      = helm_release.monitoring.name
+      namespace = helm_release.monitoring.namespace
+      version   = helm_release.monitoring.version
+      status    = helm_release.monitoring.status
+    } : null
+
+    loki = var.enable_loki ? {
+      name      = helm_release.monitoring.name
+      namespace = helm_release.monitoring.namespace
+      version   = helm_release.monitoring.version
+      status    = helm_release.monitoring.status
+    } : null
+
+    mimir = var.enable_mimir ? {
+      name      = helm_release.monitoring.name
+      namespace = helm_release.monitoring.namespace
+      version   = helm_release.monitoring.version
+      status    = helm_release.monitoring.status
+    } : null
+
+    tempo = var.enable_tempo ? {
+      name      = helm_release.monitoring.name
+      namespace = helm_release.monitoring.namespace
+      version   = helm_release.monitoring.version
+      status    = helm_release.monitoring.status
+    } : null
+
+    pyroscope = var.enable_pyroscope ? {
+      name      = helm_release.monitoring.name
+      namespace = helm_release.monitoring.namespace
+      version   = helm_release.monitoring.version
+      status    = helm_release.monitoring.status
+    } : null
+  }
+}
+
+# ============================================================
+# MODULE SUMMARY
+# ============================================================
+
+output "module_summary" {
+  description = "Summary of module deployment"
+  value = {
+    cloud_provider = var.cloud_provider
+    environment    = var.environment
+    project        = var.project
+
+    enabled_components = {
+      grafana    = var.enable_grafana
+      prometheus = var.enable_prometheus
+      loki       = var.enable_loki
+      mimir      = var.enable_mimir
+      tempo      = var.enable_tempo
+      pyroscope  = var.enable_pyroscope
+    }
+
+    features = {
+      storage_created     = var.create_storage
+      alerting_enabled    = var.alerting_provider != "none"
+      alerting_provider   = var.alerting_provider
+      resource_quotas     = var.enable_resource_quotas
+      limit_ranges        = var.enable_limit_ranges
+      network_policies    = var.enable_network_policies
+      sso_enabled         = var.grafana_sso_enabled
+      tls_external_secret = var.enable_tls_external_secret
+    }
+
+    grafana_url = var.enable_grafana ? "https://${var.grafana_domain}" : null
+  }
 }
