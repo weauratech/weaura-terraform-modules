@@ -34,7 +34,7 @@ resource "helm_release" "monitoring" {
   dynamic "set_sensitive" {
     for_each = var.grafana_sso_enabled && var.grafana_sso_provider == "github" ? [1] : []
     content {
-      name  = "grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_ID"
+      name  = "grafana.env.GF_AUTH_GITHUB_CLIENT_ID"
       value = var.grafana_sso_client_id
     }
   }
@@ -42,7 +42,7 @@ resource "helm_release" "monitoring" {
   dynamic "set_sensitive" {
     for_each = var.grafana_sso_enabled && var.grafana_sso_provider == "github" ? [1] : []
     content {
-      name  = "grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET"
+      name  = "grafana.env.GF_AUTH_GITHUB_CLIENT_SECRET"
       value = var.grafana_sso_client_secret
     }
   }

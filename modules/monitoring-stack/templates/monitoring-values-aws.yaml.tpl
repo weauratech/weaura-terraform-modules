@@ -66,27 +66,22 @@ grafana:
     GF_AUTH_GOOGLE_USE_PKCE: "true"
 %{ endif ~}
 %{ if grafana_sso_enabled && grafana_sso_provider == "github" ~}
-    # GitHub OAuth SSO via Generic OAuth (supports org/team checking with full control)
+    # GitHub SSO via native auth.github provider
     # Secrets (client_id, client_secret) are injected via set_sensitive in Terraform
-    GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
-    GF_AUTH_GENERIC_OAUTH_NAME: "GitHub"
-    GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
-    GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN: "false"
-    GF_AUTH_GENERIC_OAUTH_SCOPES: "user:email read:org"
-    GF_AUTH_GENERIC_OAUTH_AUTH_URL: "${oauth_auth_url != "" ? oauth_auth_url : "https://github.com/login/oauth/authorize"}"
-    GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "${oauth_token_url != "" ? oauth_token_url : "https://github.com/login/oauth/access_token"}"
-    GF_AUTH_GENERIC_OAUTH_API_URL: "${oauth_api_url != "" ? oauth_api_url : "https://api.github.com/user"}"
-    GF_AUTH_GENERIC_OAUTH_TEAMS_URL: "https://api.github.com/user/teams"
+    GF_AUTH_GITHUB_ENABLED: "true"
+    GF_AUTH_GITHUB_ALLOW_SIGN_UP: "true"
+    GF_AUTH_GITHUB_AUTO_LOGIN: "false"
+    GF_AUTH_GITHUB_SCOPES: "user:email,read:org"
 %{ if grafana_sso_allowed_organizations != "" ~}
-    GF_AUTH_GENERIC_OAUTH_ALLOWED_ORGANIZATIONS: "${grafana_sso_allowed_organizations}"
+    GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS: "${grafana_sso_allowed_organizations}"
 %{ endif ~}
 %{ if grafana_sso_team_ids != "" ~}
-    GF_AUTH_GENERIC_OAUTH_TEAM_IDS: "${grafana_sso_team_ids}"
-    GF_AUTH_GENERIC_OAUTH_TEAM_IDS_ATTRIBUTE_PATH: "[*].slug"
+    GF_AUTH_GITHUB_TEAM_IDS: "${grafana_sso_team_ids}"
 %{ endif ~}
-    GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "${oauth_role_attribute_path}"
+    GF_AUTH_GITHUB_ROLE_ATTRIBUTE_PATH: "${oauth_role_attribute_path}"
+    GF_AUTH_GITHUB_ROLE_ATTRIBUTE_STRICT: "true"
 %{ if grafana_sso_allow_assign_grafana_admin ~}
-    GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN: "true"
+    GF_AUTH_GITHUB_ALLOW_ASSIGN_GRAFANA_ADMIN: "true"
 %{ endif ~}
 %{ endif ~}
 
@@ -213,10 +208,9 @@ grafana:
       oauth_auto_login: false
 
 %{ if grafana_sso_enabled && grafana_sso_provider == "github" ~}
-    # Generic OAuth configuration for GitHub (ini section required for teams_url)
-    auth.generic_oauth:
-      api_url: ${oauth_api_url != "" ? oauth_api_url : "https://api.github.com/user"}
-      teams_url: https://api.github.com/user/teams
+    # Native GitHub auth provider (no manual URL config needed)
+    auth.github:
+      enabled: true
 %{ endif ~}
 
     # Security
