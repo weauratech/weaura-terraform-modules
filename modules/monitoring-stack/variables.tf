@@ -277,9 +277,43 @@ variable "create_storage" {
 }
 
 variable "storage_class" {
-  description = "Kubernetes StorageClass for persistent volumes"
+  description = "Kubernetes StorageClass name for persistent volumes. If create_storage_class is true, this name will be used for the new StorageClass."
+  type        = string
+  default     = "weaura-ebs-gp3"
+}
+
+variable "create_storage_class" {
+  description = "Whether to create a dedicated StorageClass with WaitForFirstConsumer binding mode. Set to false if the cluster already has a suitable StorageClass."
+  type        = bool
+  default     = true
+}
+
+variable "storage_class_reclaim_policy" {
+  description = "Reclaim policy for the StorageClass (Retain or Delete). Retain is recommended for production to prevent accidental data loss."
+  type        = string
+  default     = "Retain"
+
+  validation {
+    condition     = contains(["Retain", "Delete"], var.storage_class_reclaim_policy)
+    error_message = "storage_class_reclaim_policy must be either 'Retain' or 'Delete'."
+  }
+}
+
+variable "storage_class_ebs_type" {
+  description = "EBS volume type for the StorageClass. gp3 is recommended (better baseline performance than gp2 at same cost)."
   type        = string
   default     = "gp3"
+
+  validation {
+    condition     = contains(["gp2", "gp3", "io1", "io2"], var.storage_class_ebs_type)
+    error_message = "storage_class_ebs_type must be one of: gp2, gp3, io1, io2."
+  }
+}
+
+variable "storage_class_encrypted" {
+  description = "Whether EBS volumes should be encrypted at rest."
+  type        = bool
+  default     = true
 }
 
 # AWS S3 Bucket Names

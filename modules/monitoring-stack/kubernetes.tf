@@ -7,6 +7,45 @@
 # ============================================================
 
 # -----------------------------
+# StorageClass (EBS gp3 with WaitForFirstConsumer)
+# -----------------------------
+# Creates a dedicated StorageClass for the observability stack.
+# Uses WaitForFirstConsumer to prevent PV zone-affinity conflicts:
+# the PV is only provisioned AFTER the pod is scheduled to a node,
+# guaranteeing the EBS volume is created in the same AZ as the node.
+# This permanently prevents the "volume node affinity conflict" issue
+# that occurs when PVs are created in AZs with no available nodes.
+# -----------------------------
+resource "kubernetes_storage_class" "this" {
+  count = var.create_storage_class ? 1 : 0
+
+  metadata {
+    name = var.storage_class
+
+    labels = merge(local.common_labels, {
+      "app.kubernetes.io/name"      = "ebs-storage"
+      "app.kubernetes.io/component" = "storage"
+      "terraform.io/managed"        = "true"
+    })
+
+    annotations = {
+      "description" = "GP3 EBS StorageClass with WaitForFirstConsumer for zone-safe PV provisioning"
+    }
+  }
+
+  storage_provisioner    = "ebs.csi.aws.com"
+  reclaim_policy         = var.storage_class_reclaim_policy
+  volume_binding_mode    = "WaitForFirstConsumer"
+  allow_volume_expansion = true
+
+  parameters = {
+    type      = var.storage_class_ebs_type
+    fsType    = "ext4"
+    encrypted = tostring(var.storage_class_encrypted)
+  }
+}
+
+# -----------------------------
 # Single Namespace
 # -----------------------------
 resource "kubernetes_namespace" "this" {

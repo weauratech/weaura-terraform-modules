@@ -68,6 +68,7 @@ resource "helm_release" "monitoring" {
     kubernetes_namespace.this,
     kubernetes_limit_range.this,
     kubernetes_service_account.workload_identity,
+    kubernetes_storage_class.this,
 
     # AWS dependencies
     aws_iam_role.irsa,
