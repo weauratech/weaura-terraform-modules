@@ -46,6 +46,16 @@ grafana:
     size: ${grafana_storage_size}
     storageClassName: ${grafana_storage_class}
 
+  # Disable init-chown-data when using EFS (access point handles UID/GID)
+  initChownData:
+    enabled: false
+
+  # Security context - fsGroup ensures files are readable by grafana user
+  securityContext:
+    runAsUser: 472
+    runAsGroup: 472
+    fsGroup: 472
+
   # Environment variables
   # GF_INSTALL_PLUGINS is the standard env var for Grafana plugin installation
   env:
