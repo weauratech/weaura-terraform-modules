@@ -29,18 +29,17 @@ defaultRules:
 prometheusOperator:
   enabled: true
 
-  # Disable TLS on operator web server.
-  # The admission webhook patch job creates secrets with 'tls.crt'/'tls.key' keys,
-  # but when certManager is disabled the operator expects '/cert/cert' and '/cert/key'.
-  # This mismatch causes CrashLoopBackOff. Disabling TLS avoids the issue entirely
-  # and is safe for in-cluster communication.
+  # Disable admission webhooks and TLS on operator web server.
+  # The admission webhook patch job creates secrets with standard TLS keys
+  # (tls.crt/tls.key), but without cert-manager the operator expects non-standard
+  # keys (cert/key). Additionally, Kubernetes API server requires HTTPS for
+  # webhooks, so webhooks cannot work without TLS. Since we manage Prometheus
+  # rules via Terraform (not kubectl), CRD validation webhooks are not needed.
+  # Re-enable with cert-manager if webhook validation is desired.
   tls:
     enabled: false
-
   admissionWebhooks:
-    enabled: true
-    patch:
-      enabled: true
+    enabled: false
 
   resources:
     requests:
