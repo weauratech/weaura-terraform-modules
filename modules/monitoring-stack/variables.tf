@@ -282,6 +282,18 @@ variable "storage_class" {
   default     = "weaura-ebs-gp3"
 }
 
+variable "grafana_storage_class" {
+  description = "StorageClass for Grafana PVC. Empty string defaults to var.storage_class. Use a different class (e.g. EFS) for AZ-agnostic storage."
+  type        = string
+  default     = ""
+}
+
+variable "loki_storage_class" {
+  description = "StorageClass for Loki PVC. Empty string defaults to var.storage_class. Use a different class (e.g. EFS) for AZ-agnostic storage."
+  type        = string
+  default     = ""
+}
+
 variable "create_storage_class" {
   description = "Whether to create a dedicated StorageClass with WaitForFirstConsumer binding mode. Set to false if the cluster already has a suitable StorageClass."
   type        = bool

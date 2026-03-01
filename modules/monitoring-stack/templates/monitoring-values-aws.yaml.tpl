@@ -44,7 +44,7 @@ grafana:
   persistence:
     enabled: true
     size: ${grafana_storage_size}
-    storageClassName: ${storage_class}
+    storageClassName: ${grafana_storage_class}
 
   # Environment variables
   # GF_INSTALL_PLUGINS is the standard env var for Grafana plugin installation
@@ -384,7 +384,7 @@ loki:
     replicas: 1
     persistence:
       enabled: true
-      storageClass: ${storage_class}
+      storageClass: ${loki_storage_class}
       size: 10Gi
     resources:
       requests:

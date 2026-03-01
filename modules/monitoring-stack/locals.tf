@@ -430,7 +430,9 @@ locals {
     # Node scheduling (common)
     node_selector = local.node_selector
     tolerations   = local.tolerations
-    storage_class = var.storage_class
+    storage_class         = var.storage_class
+    grafana_storage_class = var.grafana_storage_class != "" ? var.grafana_storage_class : var.storage_class
+    loki_storage_class    = var.loki_storage_class != "" ? var.loki_storage_class : var.storage_class
 
     # ============================================================
     # GRAFANA
