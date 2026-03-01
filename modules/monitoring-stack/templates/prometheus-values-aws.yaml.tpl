@@ -20,10 +20,44 @@ grafana:
   defaultDashboardsEnabled: true
   forceDeployDashboards: true
 
-# Disable default kube-prometheus-stack alerts
-# Only custom alerts are used
+# Enable default kube-prometheus-stack recording rules and alerts
+# Recording rules pre-aggregate metrics needed by the Grafana dashboards
+# (e.g. namespace_workload_pod:kube_pod_owner:relabel, node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate)
 defaultRules:
-  create: false
+  create: true
+  rules:
+    alertmanager: false
+    etcd: false
+    configReloaders: false
+    general: true
+    k8sContainerCpuUsageSecondsTotal: true
+    k8sContainerMemoryCache: true
+    k8sContainerMemoryRss: true
+    k8sContainerMemorySwap: true
+    k8sContainerMemoryWorkingSetBytes: true
+    k8sContainerResource: true
+    k8sPodOwner: true
+    kubeApiserverAvailability: true
+    kubeApiserverBurnrate: true
+    kubeApiserverHistogram: true
+    kubeApiserverSlos: true
+    kubeControllerManager: false
+    kubelet: true
+    kubeProxy: true
+    kubePrometheusGeneral: true
+    kubePrometheusNodeRecording: true
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: true
+    kubeStateMetrics: true
+    network: true
+    nodeExporterAlerting: true
+    nodeExporterRecording: true
+    prometheus: true
+    prometheusOperator: false
 
 # Prometheus Operator
 prometheusOperator:
@@ -192,6 +226,12 @@ kubeStateMetrics:
   enabled: true
 
 kube-state-metrics:
+  # Enable Prometheus ServiceMonitor for kube-state-metrics scraping
+  prometheus:
+    monitor:
+      enabled: true
+      additionalLabels:
+        release: weaura-prometheus
   # Node scheduling for kube-state-metrics
 %{ if length(node_selector) > 0 ~}
   nodeSelector:
