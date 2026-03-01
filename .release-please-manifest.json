@@ -1,5 +1,5 @@
 {
-  "modules/grafana-oss": "0.1.0",
-  "modules/ecr-charts": "1.0.0",
-  "modules/monitoring-stack": "1.0.0"
+  "modules/grafana-oss": "0.1.1",
+  "modules/ecr-charts": "1.1.0",
+  "modules/monitoring-stack": "1.1.0"
 }
