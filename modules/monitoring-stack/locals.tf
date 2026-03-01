@@ -464,6 +464,8 @@ locals {
     oauth_token_url                   = var.grafana_oauth_token_url
     oauth_api_url                     = var.grafana_oauth_api_url
     oauth_role_attribute_path         = var.grafana_oauth_role_attribute_path
+    grafana_sso_team_ids                  = var.grafana_sso_team_ids
+    grafana_sso_allow_assign_grafana_admin = var.grafana_sso_allow_assign_grafana_admin
 
     # Grafana datasources (component enablement)
     enable_mimir     = var.enable_mimir

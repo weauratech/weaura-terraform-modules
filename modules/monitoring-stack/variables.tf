@@ -497,7 +497,19 @@ variable "grafana_oauth_api_url" {
 variable "grafana_oauth_role_attribute_path" {
   description = "JMESPath expression for role mapping"
   type        = string
-  default     = "contains(groups[*], 'admin') && 'Admin' || 'Viewer'"
+  default     = "contains(groups[*], 'admins') && 'GrafanaAdmin' || 'Viewer'"
+}
+
+variable "grafana_sso_team_ids" {
+  description = "Team IDs for SSO team-based role mapping (comma-separated)"
+  type        = string
+  default     = ""
+}
+
+variable "grafana_sso_allow_assign_grafana_admin" {
+  description = "Allow SSO role mapping to assign Grafana Server Admin"
+  type        = bool
+  default     = false
 }
 
 variable "enable_cloudwatch_datasource" {
