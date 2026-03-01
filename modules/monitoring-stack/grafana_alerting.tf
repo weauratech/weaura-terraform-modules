@@ -15,24 +15,24 @@ resource "grafana_message_template" "default" {
   name = "default-alert-template"
 
   template = <<-EOT
-    {{ define "alert_message" }}
-    {{ if gt (len .Alerts.Firing) 0 }}
-    *Firing Alerts:*
-    {{ range .Alerts.Firing }}
-    - {{ .Labels.alertname }}: {{ .Annotations.summary }}
-      Severity: {{ .Labels.severity | default "unknown" }}
-      {{ if .Annotations.description }}Description: {{ .Annotations.description }}{{ end }}
-      {{ if .DashboardURL }}Dashboard: {{ .DashboardURL }}{{ end }}
-      {{ if .SilenceURL }}Silence: {{ .SilenceURL }}{{ end }}
-    {{ end }}
-    {{ end }}
-    {{ if gt (len .Alerts.Resolved) 0 }}
-    *Resolved Alerts:*
-    {{ range .Alerts.Resolved }}
-    - {{ .Labels.alertname }}: {{ .Annotations.summary }}
-    {{ end }}
-    {{ end }}
-    {{ end }}
+{{ define "alert_message" }}
+{{ if gt (len .Alerts.Firing) 0 }}
+*Firing Alerts:*
+{{ range .Alerts.Firing }}
+- {{ .Labels.alertname }}: {{ .Annotations.summary }}
+  Severity: {{ .Labels.severity }}
+      {{ if .Annotations.description }}  Description: {{ .Annotations.description }}{{ end }}
+      {{ if .DashboardURL }}  Dashboard: {{ .DashboardURL }}{{ end }}
+      {{ if .SilenceURL }}  Silence: {{ .SilenceURL }}{{ end }}
+{{ end }}
+{{ end }}
+{{ if gt (len .Alerts.Resolved) 0 }}
+*Resolved Alerts:*
+{{ range .Alerts.Resolved }}
+- {{ .Labels.alertname }}: {{ .Annotations.summary }}
+{{ end }}
+{{ end }}
+{{ end }}
   EOT
 
   depends_on = [helm_release.monitoring]
