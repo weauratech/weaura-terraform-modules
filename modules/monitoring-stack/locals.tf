@@ -14,7 +14,9 @@ locals {
   # ============================================================
   # ALERTING PROVIDER FLAGS
   # ============================================================
-  is_slack = var.alerting_provider == "slack"
+  is_slack       = var.alerting_provider == "slack"
+  is_google_chat = var.alerting_provider == "google_chat"
+  is_teams       = var.alerting_provider == "teams"
 
   # ============================================================
   # NAMING

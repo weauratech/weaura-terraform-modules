@@ -889,13 +889,13 @@ variable "ingress_scheme" {
 # ============================================================
 
 variable "alerting_provider" {
-  description = "Alerting provider (slack or teams)"
+  description = "Alerting provider for notification channels"
   type        = string
-  default     = "slack"
+  default     = "none"
 
   validation {
-    condition     = contains(["slack", "none"], var.alerting_provider)
-    error_message = "alerting_provider must be 'slack' or 'none'."
+    condition     = contains(["slack", "google_chat", "teams", "none"], var.alerting_provider)
+    error_message = "alerting_provider must be 'slack', 'google_chat', 'teams', or 'none'."
   }
 }
 
@@ -952,11 +952,63 @@ variable "slack_channel_application" {
   default     = "#alerts-application"
 }
 
+# Google Chat Configuration
+variable "google_chat_webhook_general" {
+  description = "Google Chat webhook URL for general alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "google_chat_webhook_critical" {
+  description = "Google Chat webhook URL for critical alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "google_chat_webhook_infrastructure" {
+  description = "Google Chat webhook URL for infrastructure alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "google_chat_webhook_application" {
+  description = "Google Chat webhook URL for application alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # Microsoft Teams Configuration
+variable "teams_webhook_general" {
+  description = "Microsoft Teams webhook URL for general alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
 
+variable "teams_webhook_critical" {
+  description = "Microsoft Teams webhook URL for critical alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
 
+variable "teams_webhook_infrastructure" {
+  description = "Microsoft Teams webhook URL for infrastructure alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
 
-
+variable "teams_webhook_application" {
+  description = "Microsoft Teams webhook URL for application alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
 # ============================================================
 # GRAFANA DASHBOARDS & FOLDERS
 # ============================================================

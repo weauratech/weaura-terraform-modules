@@ -1,7 +1,7 @@
 # ============================================================
 # Grafana Alerting - Contact Points, Notification Policies
 # ============================================================
-# Configures Grafana alerting with Slack or Microsoft Teams.
+# Configures Grafana alerting with Slack, Google Chat, or Microsoft Teams.
 # Uses the Grafana Terraform provider for native integration.
 # ============================================================
 
@@ -145,12 +145,132 @@ resource "grafana_contact_point" "slack_application" {
 }
 
 # ============================================================
+# GOOGLE CHAT CONTACT POINTS
+# ============================================================
+
+resource "grafana_contact_point" "google_chat_general" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_google_chat && var.google_chat_webhook_general != "" ? 1 : 0
+
+  name = "google-chat-general"
+
+  googlechat {
+    url                     = var.google_chat_webhook_general
+    title                   = "{{ template \"default.title\" . }}"
+    message                 = "{{ template \"alert_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.default]
+}
+
+resource "grafana_contact_point" "google_chat_critical" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_google_chat && var.google_chat_webhook_critical != "" ? 1 : 0
+
+  name = "google-chat-critical"
+
+  googlechat {
+    url                     = var.google_chat_webhook_critical
+    title                   = "\ud83d\udea8 CRITICAL: {{ template \"default.title\" . }}"
+    message                 = "{{ template \"critical_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.critical]
+}
+
+resource "grafana_contact_point" "google_chat_infrastructure" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_google_chat && var.google_chat_webhook_infrastructure != "" ? 1 : 0
+
+  name = "google-chat-infrastructure"
+
+  googlechat {
+    url                     = var.google_chat_webhook_infrastructure
+    title                   = "\u2699\ufe0f Infrastructure: {{ template \"default.title\" . }}"
+    message                 = "{{ template \"alert_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.default]
+}
+
+resource "grafana_contact_point" "google_chat_application" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_google_chat && var.google_chat_webhook_application != "" ? 1 : 0
+
+  name = "google-chat-application"
+
+  googlechat {
+    url                     = var.google_chat_webhook_application
+    title                   = "\ud83d\udce6 Application: {{ template \"default.title\" . }}"
+    message                 = "{{ template \"alert_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.default]
+}
+
+# ============================================================
 # MICROSOFT TEAMS CONTACT POINTS
 # ============================================================
 
+resource "grafana_contact_point" "teams_general" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_general != "" ? 1 : 0
 
+  name = "teams-general"
 
+  teams {
+    url                     = var.teams_webhook_general
+    title                   = "{{ template \"default.title\" . }}"
+    message                 = "{{ template \"alert_message\" . }}"
+    disable_resolve_message = false
+  }
 
+  depends_on = [helm_release.monitoring, grafana_message_template.default]
+}
+
+resource "grafana_contact_point" "teams_critical" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_critical != "" ? 1 : 0
+
+  name = "teams-critical"
+
+  teams {
+    url                     = var.teams_webhook_critical
+    title                   = "\ud83d\udea8 CRITICAL: {{ template \"default.title\" . }}"
+    message                 = "{{ template \"critical_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.critical]
+}
+
+resource "grafana_contact_point" "teams_infrastructure" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_infrastructure != "" ? 1 : 0
+
+  name = "teams-infrastructure"
+
+  teams {
+    url                     = var.teams_webhook_infrastructure
+    title                   = "\u2699\ufe0f Infrastructure: {{ template \"default.title\" . }}"
+    message                 = "{{ template \"alert_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.default]
+}
+
+resource "grafana_contact_point" "teams_application" {
+  count = var.enable_grafana && var.enable_grafana_resources && local.is_teams && var.teams_webhook_application != "" ? 1 : 0
+
+  name = "teams-application"
+
+  teams {
+    url                     = var.teams_webhook_application
+    title                   = "\ud83d\udce6 Application: {{ template \"default.title\" . }}"
+    message                 = "{{ template \"alert_message\" . }}"
+    disable_resolve_message = false
+  }
+
+  depends_on = [helm_release.monitoring, grafana_message_template.default]
+}
 
 # ============================================================
 # NOTIFICATION POLICY
@@ -166,14 +286,34 @@ locals {
     application    = var.slack_webhook_application != "" ? "slack-application" : null
   }
 
-
-  # Select contact points based on provider (AWS-only: slack is the only supported provider)
-  active_contact_points = local.is_slack ? local.slack_contact_points : {
-    general        = null
-    critical       = null
-    infrastructure = null
-    application    = null
+  # Google Chat contact points
+  google_chat_contact_points = {
+    general        = var.google_chat_webhook_general != "" ? "google-chat-general" : null
+    critical       = var.google_chat_webhook_critical != "" ? "google-chat-critical" : null
+    infrastructure = var.google_chat_webhook_infrastructure != "" ? "google-chat-infrastructure" : null
+    application    = var.google_chat_webhook_application != "" ? "google-chat-application" : null
   }
+
+  # Microsoft Teams contact points
+  teams_contact_points = {
+    general        = var.teams_webhook_general != "" ? "teams-general" : null
+    critical       = var.teams_webhook_critical != "" ? "teams-critical" : null
+    infrastructure = var.teams_webhook_infrastructure != "" ? "teams-infrastructure" : null
+    application    = var.teams_webhook_application != "" ? "teams-application" : null
+  }
+
+  # Select contact points based on provider
+  active_contact_points = (
+    local.is_slack ? local.slack_contact_points :
+    local.is_google_chat ? local.google_chat_contact_points :
+    local.is_teams ? local.teams_contact_points :
+    {
+      general        = null
+      critical       = null
+      infrastructure = null
+      application    = null
+    }
+  )
 
   # Default contact point
   default_contact_point = coalesce(
@@ -253,7 +393,14 @@ resource "grafana_notification_policy" "main" {
     grafana_contact_point.slack_critical,
     grafana_contact_point.slack_infrastructure,
     grafana_contact_point.slack_application,
-
+    grafana_contact_point.google_chat_general,
+    grafana_contact_point.google_chat_critical,
+    grafana_contact_point.google_chat_infrastructure,
+    grafana_contact_point.google_chat_application,
+    grafana_contact_point.teams_general,
+    grafana_contact_point.teams_critical,
+    grafana_contact_point.teams_infrastructure,
+    grafana_contact_point.teams_application,
   ]
 }
 
