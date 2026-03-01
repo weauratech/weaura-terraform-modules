@@ -27,7 +27,7 @@ grafana:
   replicas: 1
 
   image:
-    tag: "11.6.0"
+    tag: "12.4.0"
 
   datasourceUrls:
     prometheus: "${datasource_prometheus}"
@@ -82,6 +82,7 @@ grafana:
 %{ endif ~}
 %{ if grafana_sso_team_ids != "" ~}
     GF_AUTH_GENERIC_OAUTH_TEAM_IDS: "${grafana_sso_team_ids}"
+    GF_AUTH_GENERIC_OAUTH_TEAM_IDS_ATTRIBUTE_PATH: "[*].slug"
 %{ endif ~}
     GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "${oauth_role_attribute_path}"
 %{ if grafana_sso_allow_assign_grafana_admin ~}

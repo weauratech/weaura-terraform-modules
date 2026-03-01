@@ -672,7 +672,7 @@ variable "loki_resources" {
 variable "mimir_chart_version" {
   description = "Mimir Helm chart version"
   type        = string
-  default     = "4.1.0"
+  default     = "6.0.5"
 }
 
 variable "mimir_replication_factor" {
@@ -718,7 +718,7 @@ variable "mimir_resources" {
 variable "tempo_chart_version" {
   description = "Tempo Helm chart version"
   type        = string
-  default     = "1.59.0"
+  default     = "1.61.3"
 }
 
 variable "tempo_retention_period" {
@@ -758,7 +758,7 @@ variable "tempo_resources" {
 variable "pyroscope_chart_version" {
   description = "Pyroscope Helm chart version"
   type        = string
-  default     = "1.16.0"
+  default     = "1.18.1"
 }
 
 variable "pyroscope_replicas" {
