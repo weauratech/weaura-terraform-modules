@@ -24,6 +24,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100) > 80"
         refId = "A"
@@ -33,6 +37,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -48,6 +56,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -95,6 +107,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85"
         refId = "A"
@@ -104,6 +120,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -119,6 +139,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -166,6 +190,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "(1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"}) * 100 > 85"
         refId = "A"
@@ -175,6 +203,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -190,6 +222,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -237,6 +273,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "(1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"}) * 100 > 95"
         refId = "A"
@@ -246,6 +286,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -261,6 +305,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -308,6 +356,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m]) > 10"
         refId = "A"
@@ -317,6 +369,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -332,6 +388,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -379,6 +439,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_node_status_condition{condition=\"Ready\",status=\"true\"} == 0"
         refId = "A"
@@ -388,6 +452,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -403,6 +471,10 @@ resource "grafana_rule_group" "node_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -458,6 +530,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "rate(kube_pod_container_status_restarts_total[15m]) * 60 * 15 > 0"
         refId = "A"
@@ -467,6 +543,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -482,6 +562,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -529,6 +613,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_pod_status_phase{phase=~\"Pending|Unknown\"} > 0"
         refId = "A"
@@ -538,6 +626,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -553,6 +645,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -600,6 +696,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\"} > 0"
         refId = "A"
@@ -609,6 +709,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -624,6 +728,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -671,6 +779,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "sum by (namespace, pod) (container_memory_working_set_bytes{container!=\"\"}) / sum by (namespace, pod) (kube_pod_container_resource_limits{resource=\"memory\"}) * 100 > 90"
         refId = "A"
@@ -680,6 +792,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -695,6 +811,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -742,6 +862,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "sum by (namespace, pod) (rate(container_cpu_cfs_throttled_periods_total[5m])) / sum by (namespace, pod) (rate(container_cpu_cfs_periods_total[5m])) * 100 > 60"
         refId = "A"
@@ -751,6 +875,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -766,6 +894,10 @@ resource "grafana_rule_group" "pod_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -821,6 +953,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_deployment_spec_replicas != kube_deployment_status_ready_replicas"
         refId = "A"
@@ -830,6 +966,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -845,6 +985,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -892,6 +1036,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_statefulset_status_replicas_ready != kube_statefulset_status_replicas"
         refId = "A"
@@ -901,6 +1049,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -916,6 +1068,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -963,6 +1119,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_daemonset_status_desired_number_scheduled - kube_daemonset_status_current_number_scheduled > 0"
         refId = "A"
@@ -972,6 +1132,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -987,6 +1151,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1034,6 +1202,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_horizontalpodautoscaler_status_current_replicas == kube_horizontalpodautoscaler_spec_max_replicas"
         refId = "A"
@@ -1043,6 +1215,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1058,6 +1234,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1105,6 +1285,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kube_job_status_failed > 0"
         refId = "A"
@@ -1114,6 +1298,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1129,6 +1317,10 @@ resource "grafana_rule_group" "deployment_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1184,6 +1376,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes * 100 > 85"
         refId = "A"
@@ -1193,6 +1389,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1208,6 +1408,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1255,6 +1459,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes * 100 > 95"
         refId = "A"
@@ -1264,6 +1472,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1279,6 +1491,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1326,6 +1542,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "kubelet_volume_stats_inodes_used / kubelet_volume_stats_inodes * 100 > 90"
         refId = "A"
@@ -1335,6 +1555,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1350,6 +1574,10 @@ resource "grafana_rule_group" "persistent_volume_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1405,6 +1633,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "histogram_quantile(0.99, sum by (le, verb) (rate(apiserver_request_duration_seconds_bucket{verb!~\"WATCH|CONNECT\"}[5m]))) > 1"
         refId = "A"
@@ -1414,6 +1646,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1429,6 +1665,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1476,6 +1716,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "sum(rate(apiserver_request_total{code=~\"5..\"}[5m])) / sum(rate(apiserver_request_total[5m])) * 100 > 3"
         refId = "A"
@@ -1485,6 +1729,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1500,6 +1748,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1547,6 +1799,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "sum(rate(coredns_cache_misses_total[5m])) > 100"
         refId = "A"
@@ -1556,6 +1812,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1571,6 +1831,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1618,6 +1882,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket[5m])) > 0.25"
         refId = "A"
@@ -1627,6 +1895,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1642,6 +1914,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
@@ -1689,6 +1965,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "A"
       datasource_uid = "prometheus"
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
       model = jsonencode({
         expr  = "sum(kube_pod_status_phase{phase=\"Running\"}) / sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) > 100"
         refId = "A"
@@ -1698,6 +1978,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "B"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         datasource = {
           type = "__expr__"
@@ -1713,6 +1997,10 @@ resource "grafana_rule_group" "cluster_alerts" {
     data {
       ref_id         = "C"
       datasource_uid = "__expr__"
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
       model = jsonencode({
         conditions = [{
           evaluator = {
