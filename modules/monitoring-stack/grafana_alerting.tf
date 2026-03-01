@@ -17,22 +17,31 @@ resource "grafana_message_template" "default" {
   template = <<-EOT
 {{ define "alert_message" }}
 {{ if gt (len .Alerts.Firing) 0 }}
-*Firing Alerts:*
+FIRING ALERTS ({{ len .Alerts.Firing }})
 {{ range .Alerts.Firing }}
-- {{ .Labels.alertname }}: {{ .Annotations.summary }}
-  Severity: {{ .Labels.severity }}
-      {{ if .Annotations.description }}  Description: {{ .Annotations.description }}{{ end }}
-      {{ if .DashboardURL }}  Dashboard: {{ .DashboardURL }}{{ end }}
-      {{ if .SilenceURL }}  Silence: {{ .SilenceURL }}{{ end }}
+-------------------------------------------
+Alert:     {{ .Labels.alertname }}
+Severity:  {{ .Labels.severity }}
+{{ if .Annotations.summary }}Summary:   {{ .Annotations.summary }}{{ end }}
+{{ if .Annotations.description }}Details:   {{ .Annotations.description }}{{ end }}
+{{ if .Labels.namespace }}Namespace: {{ .Labels.namespace }}{{ end }}
+{{ if .Labels.pod }}Pod:       {{ .Labels.pod }}{{ end }}
+{{ if .Labels.node }}Node:      {{ .Labels.node }}{{ end }}
+{{ if .DashboardURL }}Dashboard: {{ .DashboardURL }}{{ end }}
+{{ if .SilenceURL }}Silence:   {{ .SilenceURL }}{{ end }}
 {{ end }}
 {{ end }}
 {{ if gt (len .Alerts.Resolved) 0 }}
-*Resolved Alerts:*
+RESOLVED ALERTS ({{ len .Alerts.Resolved }})
 {{ range .Alerts.Resolved }}
-- {{ .Labels.alertname }}: {{ .Annotations.summary }}
+-------------------------------------------
+Alert:     {{ .Labels.alertname }}
+{{ if .Annotations.summary }}Summary:   {{ .Annotations.summary }}{{ end }}
 {{ end }}
 {{ end }}
 {{ end }}
+
+{{ define "custom_title" }}[{{ .Status }}] {{ .CommonLabels.alertname }}{{ end }}
   EOT
 
   depends_on = [helm_release.monitoring]
@@ -44,21 +53,26 @@ resource "grafana_message_template" "critical" {
   name = "critical-alert-template"
 
   template = <<-EOT
-    {{ define "critical_message" }}
-    :rotating_light: *CRITICAL ALERT* :rotating_light:
-    {{ range .Alerts.Firing }}
-    *Alert:* {{ .Labels.alertname }}
-    *Severity:* CRITICAL
-    *Summary:* {{ .Annotations.summary }}
-    {{ if .Annotations.description }}*Description:* {{ .Annotations.description }}{{ end }}
-    {{ if .Annotations.runbook_url }}*Runbook:* {{ .Annotations.runbook_url }}{{ end }}
-    *Labels:*
-    {{ range .Labels.SortedPairs }}  - {{ .Name }}: {{ .Value }}
-    {{ end }}
-    {{ if .DashboardURL }}*Dashboard:* {{ .DashboardURL }}{{ end }}
-    {{ if .SilenceURL }}*Silence:* {{ .SilenceURL }}{{ end }}
-    {{ end }}
-    {{ end }}
+{{ define "critical_message" }}
+CRITICAL ALERT
+{{ range .Alerts.Firing }}
+===========================================
+Alert:       {{ .Labels.alertname }}
+Severity:    CRITICAL
+{{ if .Annotations.summary }}Summary:     {{ .Annotations.summary }}{{ end }}
+{{ if .Annotations.description }}Description: {{ .Annotations.description }}{{ end }}
+
+Labels:
+{{ range .Labels.SortedPairs }}  {{ .Name }} = {{ .Value }}
+{{ end }}
+{{ if .Annotations.runbook_url }}Runbook: {{ .Annotations.runbook_url }}{{ end }}
+{{ if .DashboardURL }}Dashboard: {{ .DashboardURL }}{{ end }}
+{{ if .SilenceURL }}Silence: {{ .SilenceURL }}{{ end }}
+===========================================
+{{ end }}
+{{ end }}
+
+{{ define "critical_title" }}[CRITICAL] {{ .CommonLabels.alertname }}{{ end }}
   EOT
 
   depends_on = [helm_release.monitoring]
@@ -155,7 +169,7 @@ resource "grafana_contact_point" "google_chat_general" {
 
   googlechat {
     url                     = var.google_chat_webhook_general
-    title                   = "{{ template \"default.title\" . }}"
+    title                   = "{{ template \"custom_title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
@@ -170,7 +184,7 @@ resource "grafana_contact_point" "google_chat_critical" {
 
   googlechat {
     url                     = var.google_chat_webhook_critical
-    title                   = "[CRITICAL] {{ template \"default.title\" . }}"
+    title                   = "{{ template \"critical_title\" . }}"
     message                 = "{{ template \"critical_message\" . }}"
     disable_resolve_message = false
   }
@@ -185,7 +199,7 @@ resource "grafana_contact_point" "google_chat_infrastructure" {
 
   googlechat {
     url                     = var.google_chat_webhook_infrastructure
-    title                   = "[Infrastructure] {{ template \"default.title\" . }}"
+    title                   = "[INFRA] {{ template \"custom_title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
@@ -200,7 +214,7 @@ resource "grafana_contact_point" "google_chat_application" {
 
   googlechat {
     url                     = var.google_chat_webhook_application
-    title                   = "[Application] {{ template \"default.title\" . }}"
+    title                   = "[APP] {{ template \"custom_title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
