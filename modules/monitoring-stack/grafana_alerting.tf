@@ -170,7 +170,7 @@ resource "grafana_contact_point" "google_chat_critical" {
 
   googlechat {
     url                     = var.google_chat_webhook_critical
-    title                   = "\ud83d\udea8 CRITICAL: {{ template \"default.title\" . }}"
+    title                   = "[CRITICAL] {{ template \"default.title\" . }}"
     message                 = "{{ template \"critical_message\" . }}"
     disable_resolve_message = false
   }
@@ -185,7 +185,7 @@ resource "grafana_contact_point" "google_chat_infrastructure" {
 
   googlechat {
     url                     = var.google_chat_webhook_infrastructure
-    title                   = "\u2699\ufe0f Infrastructure: {{ template \"default.title\" . }}"
+    title                   = "[Infrastructure] {{ template \"default.title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
@@ -200,7 +200,7 @@ resource "grafana_contact_point" "google_chat_application" {
 
   googlechat {
     url                     = var.google_chat_webhook_application
-    title                   = "\ud83d\udce6 Application: {{ template \"default.title\" . }}"
+    title                   = "[Application] {{ template \"default.title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
@@ -234,7 +234,7 @@ resource "grafana_contact_point" "teams_critical" {
 
   teams {
     url                     = var.teams_webhook_critical
-    title                   = "\ud83d\udea8 CRITICAL: {{ template \"default.title\" . }}"
+    title                   = "[CRITICAL] {{ template \"default.title\" . }}"
     message                 = "{{ template \"critical_message\" . }}"
     disable_resolve_message = false
   }
@@ -249,7 +249,7 @@ resource "grafana_contact_point" "teams_infrastructure" {
 
   teams {
     url                     = var.teams_webhook_infrastructure
-    title                   = "\u2699\ufe0f Infrastructure: {{ template \"default.title\" . }}"
+    title                   = "[Infrastructure] {{ template \"default.title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
@@ -264,7 +264,7 @@ resource "grafana_contact_point" "teams_application" {
 
   teams {
     url                     = var.teams_webhook_application
-    title                   = "\ud83d\udce6 Application: {{ template \"default.title\" . }}"
+    title                   = "[Application] {{ template \"default.title\" . }}"
     message                 = "{{ template \"alert_message\" . }}"
     disable_resolve_message = false
   }
