@@ -1075,6 +1075,11 @@ variable "enable_grafana_resources" {
   default     = false
 }
 
+variable "enable_default_alert_rules" {
+  description = "Enable default Kubernetes alert rules in Grafana (node, pod, deployment, PVC, cluster)"
+  type        = bool
+  default     = true
+}
 # ============================================================
 # MONITORING UMBRELLA CHART CONFIGURATION
 # ============================================================
