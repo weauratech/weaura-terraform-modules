@@ -8,92 +8,26 @@
 # Required Variables
 # --------------------------------
 
-cluster_name = "my-eks-cluster"
-region       = "us-east-1"
+tenant_id    = "acme-corp"
+tenant_name  = "ACME Corporation"
 
-# --------------------------------
-# General Configuration
-# --------------------------------
+eks_cluster_name      = "my-eks-cluster"
+eks_oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE"
+eks_oidc_provider_url = "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE"
 
-environment = "production"
-owner       = "platform-team"
-cost_center = "engineering"
-namespace   = "monitoring"
-
-# --------------------------------
-# Grafana Configuration
-# --------------------------------
+grafana_domain           = "grafana.example.com"
+monitoring_chart_version = "0.1.10"
 
 # IMPORTANT: Use a secure password or reference AWS Secrets Manager
 grafana_admin_password = "change-me-to-secure-password"
 
-# Set to true and configure hostname to enable external access
-enable_ingress       = false
-grafana_ingress_host = ""  # e.g., "grafana.example.com"
-
 # --------------------------------
-# Storage Configuration
-# --------------------------------
-# Adjust based on your expected log/metric volume
-
-# Loki (Logs)
-loki_storage_size = "100Gi"
-loki_retention    = "60d"
-
-# Mimir (Metrics - Long-term)
-mimir_storage_size = "200Gi"
-mimir_retention    = "180d"
-
-# Tempo (Traces)
-tempo_storage_size = "100Gi"
-tempo_retention    = "60d"
-
-# Prometheus (Metrics - Short-term)
-prometheus_storage_size = "100Gi"
-prometheus_retention    = "30d"
-
-# Pyroscope (Profiling)
-pyroscope_storage_size = "50Gi"
-
-# --------------------------------
-# S3 Configuration
+# Optional Variables
 # --------------------------------
 
-# Leave empty to use "{cluster_name}-monitoring" as prefix
-s3_bucket_prefix = ""
+aws_region  = "us-east-1"
+environment = "production"
 
-# Alert when any S3 bucket exceeds this size (in GB)
-s3_size_alarm_threshold_gb = 500
-
-# --------------------------------
-# Monitoring & Alerting
-# --------------------------------
-
-enable_sns_alerts = false
-alert_email       = ""  # e.g., "platform-team@example.com"
-
-# --------------------------------
-# Advanced Configuration
-# --------------------------------
-
-# Additional Helm values to customize deployment
-additional_helm_values = {
-  # Example: Customize Grafana resources
-  # grafana = {
-  #   resources = {
-  #     requests = {
-  #       memory = "256Mi"
-  #       cpu    = "200m"
-  #     }
-  #     limits = {
-  #       memory = "512Mi"
-  #       cpu    = "500m"
-  #     }
-  #   }
-  # }
-  
-  # Example: Scale Loki
-  # loki = {
-  #   replicas = 3
-  # }
-}
+# Harbor OCI auth (provided by WeAura)
+# harbor_username = ""
+# harbor_password = ""

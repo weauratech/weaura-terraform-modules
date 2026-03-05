@@ -7,159 +7,97 @@
 # --------------------------------
 
 output "grafana_url" {
-  description = "Grafana dashboard URL (internal cluster access)"
+  description = "Grafana dashboard URL"
   value       = module.monitoring_stack.grafana_url
 }
 
-output "grafana_admin_username" {
+output "grafana_admin_user" {
   description = "Grafana admin username"
-  value       = module.monitoring_stack.grafana_admin_username
+  value       = module.monitoring_stack.grafana_admin_user
 }
 
-output "grafana_ingress_host" {
-  description = "Grafana ingress hostname (if ingress enabled)"
-  value       = module.monitoring_stack.grafana_ingress_host
-}
-
-output "grafana_port_forward_command" {
-  description = "Command to access Grafana via port-forward"
-  value       = "kubectl port-forward -n ${var.namespace} svc/grafana 3000:80"
+output "grafana_namespace" {
+  description = "Kubernetes namespace where Grafana is deployed"
+  value       = module.monitoring_stack.grafana_namespace
 }
 
 # --------------------------------
 # Component Endpoints
 # --------------------------------
 
+output "prometheus_url" {
+  description = "Prometheus internal service URL"
+  value       = module.monitoring_stack.prometheus_url
+}
+
 output "loki_url" {
-  description = "Loki service URL"
+  description = "Loki internal service URL"
   value       = module.monitoring_stack.loki_url
 }
 
 output "mimir_url" {
-  description = "Mimir service URL"
+  description = "Mimir internal service URL"
   value       = module.monitoring_stack.mimir_url
 }
 
 output "tempo_url" {
-  description = "Tempo service URL"
+  description = "Tempo internal service URL"
   value       = module.monitoring_stack.tempo_url
 }
 
-output "prometheus_url" {
-  description = "Prometheus service URL"
-  value       = module.monitoring_stack.prometheus_url
-}
-
 output "pyroscope_url" {
-  description = "Pyroscope service URL"
+  description = "Pyroscope internal service URL"
   value       = module.monitoring_stack.pyroscope_url
 }
 
-# --------------------------------
-# S3 Storage
-# --------------------------------
-
-output "s3_buckets" {
-  description = "S3 bucket names for each component"
-  value       = module.monitoring_stack.s3_buckets
-}
-
-output "s3_bucket_arns" {
-  description = "S3 bucket ARNs for each component"
-  value       = module.monitoring_stack.s3_bucket_arns
+output "datasource_urls" {
+  description = "Map of all datasource URLs for Grafana configuration"
+  value       = module.monitoring_stack.datasource_urls
 }
 
 # --------------------------------
-# IAM Resources
+# AWS Resources
 # --------------------------------
 
-output "iam_role_arn" {
-  description = "IAM role ARN for monitoring service accounts"
-  value       = module.monitoring_stack.iam_role_arn
+output "aws_s3_bucket_names" {
+  description = "Names of S3 buckets created"
+  value       = module.monitoring_stack.aws_s3_bucket_names
 }
 
-output "iam_role_name" {
-  description = "IAM role name for monitoring service accounts"
-  value       = module.monitoring_stack.iam_role_name
+output "aws_s3_bucket_arns" {
+  description = "ARNs of S3 buckets created"
+  value       = module.monitoring_stack.aws_s3_bucket_arns
 }
 
-# --------------------------------
-# Kubernetes Resources
-# --------------------------------
-
-output "namespace" {
-  description = "Kubernetes namespace"
-  value       = module.monitoring_stack.namespace
-}
-
-output "service_accounts" {
-  description = "Created Kubernetes service accounts"
-  value       = module.monitoring_stack.service_accounts
+output "aws_iam_role_arns" {
+  description = "ARNs of IAM roles for IRSA"
+  value       = module.monitoring_stack.aws_iam_role_arns
 }
 
 # --------------------------------
-# Helm Release
+# Helm Releases
 # --------------------------------
 
-output "helm_release_name" {
-  description = "Helm release name"
-  value       = module.monitoring_stack.helm_release_name
-}
-
-output "helm_release_version" {
-  description = "Deployed chart version"
-  value       = module.monitoring_stack.helm_release_version
-}
-
-output "helm_release_status" {
-  description = "Helm release status"
-  value       = module.monitoring_stack.helm_release_status
+output "helm_releases" {
+  description = "Status of all Helm releases"
+  value       = module.monitoring_stack.helm_releases
 }
 
 # --------------------------------
 # Deployment Summary
 # --------------------------------
 
-output "enabled_components" {
-  description = "List of enabled monitoring components"
-  value       = module.monitoring_stack.enabled_components
+output "module_summary" {
+  description = "Summary of module deployment"
+  value       = module.monitoring_stack.module_summary
 }
 
-output "cluster_info" {
-  description = "EKS cluster information"
-  value = {
-    name   = module.monitoring_stack.cluster_name
-    region = module.monitoring_stack.region
-  }
+output "namespaces" {
+  description = "Monitoring namespaces"
+  value       = module.monitoring_stack.namespaces
 }
 
-# --------------------------------
-# Monitoring & Alerts
-# --------------------------------
-
-output "cloudwatch_alarms" {
-  description = "CloudWatch alarm names for S3 bucket monitoring"
-  value = {
-    for k, v in aws_cloudwatch_metric_alarm.s3_bucket_size : k => v.alarm_name
-  }
-}
-
-output "sns_topic_arn" {
-  description = "SNS topic ARN for monitoring alerts (if enabled)"
-  value       = var.enable_sns_alerts ? aws_sns_topic.monitoring_alerts[0].arn : null
-}
-
-# --------------------------------
-# Quick Access Commands
-# --------------------------------
-
-output "quick_access_commands" {
-  description = "Useful kubectl commands for accessing the monitoring stack"
-  value = {
-    grafana_port_forward    = "kubectl port-forward -n ${var.namespace} svc/grafana 3000:80"
-    prometheus_port_forward = "kubectl port-forward -n ${var.namespace} svc/prometheus 9090:9090"
-    list_pods               = "kubectl get pods -n ${var.namespace}"
-    list_services           = "kubectl get svc -n ${var.namespace}"
-    check_helm_release      = "helm list -n ${var.namespace}"
-  }
+output "storage_configuration" {
+  description = "Cloud-agnostic storage configuration summary"
+  value       = module.monitoring_stack.storage_configuration
 }
