@@ -1,0 +1,17 @@
+# ============================================================
+# SECURITY WARNING: Do NOT commit this file with real values.
+# Add terraform.tfvars to your .gitignore.
+# ============================================================
+
+cluster_name = "my-eks-cluster"
+region       = "us-east-1"
+
+harbor_url      = "registry.dev.weaura.ai/weaura-vendorized"
+harbor_username = "robot$weaura-vendorized+deployer"
+harbor_password = "REPLACE_WITH_HARBOR_PASSWORD"
+
+tags = {
+  Project     = "my-project"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+}

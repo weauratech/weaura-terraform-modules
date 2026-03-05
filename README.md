@@ -17,7 +17,7 @@ Production-ready, reusable Terraform modules for provisioning observability infr
 
 ```hcl
 module "monitoring" {
-  source = "github.com/WeAura/weaura-terraform-modules//modules/vendorize/monitoring?ref=v2.0.0"
+  source = "github.com/weauratech/weaura-terraform-modules//modules/vendorize/monitoring?ref=v2.0.0"
 
   cluster_name = "my-cluster"
   region       = "us-east-1"
@@ -51,19 +51,28 @@ The modules are optimized for AWS with deep integration into native services:
 | **Networking** | VPC with Public/Private subnets across multiple AZs |
 | **Observability** | WeAura Monitoring Stack (Helm v0.15.0) |
 
+## Examples
+
+| Example | Scenario | What It Provisions |
+| :--- | :--- | :--- |
+| [minimal](./examples/minimal/) | Fastest way to get started | Monitoring on existing EKS (Grafana + Loki + Prometheus) |
+| [existing-cluster-irsa](./examples/existing-cluster-irsa/) | Existing EKS with IRSA | Full monitoring stack with CloudWatch alarms and SNS |
+| [existing-cluster-pod-identity](./examples/existing-cluster-pod-identity/) | Existing EKS with Pod Identity | Full monitoring stack using EKS Pod Identity |
+| [greenfield-mng](./examples/greenfield-mng/) | No infrastructure yet (MNG) | VPC + EKS (Managed Node Groups) + Monitoring |
+| [greenfield-auto-mode](./examples/greenfield-auto-mode/) | No infrastructure yet (Auto Mode) | VPC + EKS Auto Mode v1.35 + Monitoring |
+
 ## Requirements
 
 - Terraform >= 1.6.0
-- Amazon EKS Cluster
+- AWS CLI configured with appropriate credentials
 - kubectl configured with cluster access
 - Helm 3.x
-- Harbor credentials for chart distribution
+- Harbor credentials for chart distribution (provided by WeAura)
 
 ### Provider Requirements
 
 - **AWS CLI**: Configured with appropriate credentials.
 - **Permissions**: Sufficient IAM permissions for creating VPCs, EKS clusters, IAM roles, and S3 buckets.
-
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -86,8 +95,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Support
 
-- Open an [issue](https://github.com/WeAura/weaura-terraform-modules/issues) for bug reports or feature requests.
-- Check [examples](./modules/vendorize/monitoring/examples/) for usage patterns.
+- Open an [issue](https://github.com/weauratech/weaura-terraform-modules/issues) for bug reports or feature requests.
+- Check [examples](./examples/) for usage patterns.
 
 ## About WeAura
 

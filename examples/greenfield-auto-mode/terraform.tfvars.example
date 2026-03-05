@@ -1,0 +1,36 @@
+# ============================================================
+# SECURITY WARNING: Do NOT commit this file with real values.
+# Add terraform.tfvars to your .gitignore.
+# ============================================================
+
+# Project
+project_name       = "mycompany-prod"
+region             = "us-east-1"
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+environment        = "production"
+
+# VPC
+vpc_cidr = "10.0.0.0/16"
+
+# EKS (Auto Mode)
+# No node sizing needed — AWS manages nodes automatically.
+kubernetes_version = "1.35"
+
+# Harbor credentials
+harbor_url      = "registry.dev.weaura.ai/weaura-vendorized"
+harbor_username = "robot$weaura-vendorized+deployer"
+harbor_password = "REPLACE_WITH_HARBOR_PASSWORD"
+
+# Monitoring
+sizing_preset          = "large"
+grafana_admin_password = "REPLACE_WITH_SECURE_PASSWORD"
+grafana_ingress_enabled = false
+grafana_ingress_host    = ""
+
+tags = {
+  Project     = "mycompany-prod"
+  Environment = "production"
+  Team        = "platform-engineering"
+  CostCenter  = "infrastructure"
+  ManagedBy   = "Terraform"
+}

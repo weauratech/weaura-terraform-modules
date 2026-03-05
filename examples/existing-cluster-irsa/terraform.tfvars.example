@@ -1,0 +1,49 @@
+# ============================================================
+# SECURITY WARNING: Do NOT commit this file with real values.
+# Add terraform.tfvars to your .gitignore.
+# ============================================================
+
+# Required
+cluster_name = "production-eks-cluster"
+region       = "us-east-1"
+
+# Harbor credentials
+harbor_url      = "registry.dev.weaura.ai/weaura-vendorized"
+harbor_username = "robot$weaura-vendorized+deployer"
+harbor_password = "REPLACE_WITH_HARBOR_PASSWORD"
+
+# Deployment
+environment      = "production"
+namespace        = "monitoring"
+sizing_preset    = "large"
+s3_bucket_prefix = "mycompany-monitoring"
+
+# Grafana
+grafana_admin_password  = "REPLACE_WITH_SECURE_PASSWORD"
+grafana_ingress_enabled = true
+grafana_ingress_host    = "grafana.example.com"
+
+# Component storage & retention
+loki_storage_size       = "100Gi"
+loki_retention          = "60d"
+mimir_storage_size      = "200Gi"
+mimir_retention         = "90d"
+tempo_storage_size      = "100Gi"
+tempo_retention         = "720h"
+prometheus_storage_size = "100Gi"
+prometheus_retention    = "30d"
+pyroscope_storage_size  = "50Gi"
+
+# Optional features
+enable_cloudwatch_alarms   = true
+s3_size_alarm_threshold_gb = 500
+enable_sns_alerts          = true
+alert_email                = "sre-team@example.com"
+
+tags = {
+  Project     = "monitoring"
+  Environment = "production"
+  Team        = "platform-engineering"
+  CostCenter  = "infrastructure"
+  ManagedBy   = "Terraform"
+}

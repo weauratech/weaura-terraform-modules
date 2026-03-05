@@ -1,0 +1,42 @@
+# ============================================================
+# SECURITY WARNING: Do NOT commit this file with real values.
+# Add terraform.tfvars to your .gitignore.
+# ============================================================
+
+# Required
+cluster_name = "staging-eks-cluster"
+region       = "us-east-1"
+
+# Harbor credentials
+harbor_url      = "registry.dev.weaura.ai/weaura-vendorized"
+harbor_username = "robot$weaura-vendorized+deployer"
+harbor_password = "REPLACE_WITH_HARBOR_PASSWORD"
+
+# Deployment
+environment      = "staging"
+namespace        = "monitoring"
+sizing_preset    = "medium"
+s3_bucket_prefix = "mycompany-staging-monitoring"
+
+# Grafana
+grafana_admin_password  = "REPLACE_WITH_SECURE_PASSWORD"
+grafana_ingress_enabled = true
+grafana_ingress_host    = "grafana-staging.example.com"
+
+# Component storage & retention (medium defaults)
+loki_storage_size       = "50Gi"
+loki_retention          = "30d"
+mimir_storage_size      = "100Gi"
+mimir_retention         = "90d"
+tempo_storage_size      = "50Gi"
+tempo_retention         = "720h"
+prometheus_storage_size = "50Gi"
+prometheus_retention    = "15d"
+pyroscope_storage_size  = "30Gi"
+
+tags = {
+  Project     = "monitoring"
+  Environment = "staging"
+  Team        = "platform-engineering"
+  ManagedBy   = "Terraform"
+}
