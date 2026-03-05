@@ -1,0 +1,64 @@
+# ============================================================
+# Greenfield Deployment — Example Variable Values
+# ============================================================
+# Copy this file:  cp terraform.tfvars.example terraform.tfvars
+# Then edit with your actual values before running terraform apply.
+#
+# ⚠️  NEVER commit terraform.tfvars to version control — it may
+#     contain secrets (harbor_password, grafana_admin_password).
+# ============================================================
+
+# --------------------------------
+# Project
+# --------------------------------
+project_name = "acme-monitoring"
+region       = "us-east-2"
+environment  = "production"
+
+# --------------------------------
+# Networking
+# --------------------------------
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["us-east-2a", "us-east-2b", "us-east-2c"]
+
+# --------------------------------
+# EKS
+# --------------------------------
+# Standard managed node groups (default):
+enable_auto_mode = false
+
+# EKS Auto Mode (uncomment to enable — uses pod_identity automatically):
+# enable_auto_mode = true
+
+# --------------------------------
+# Monitoring
+# --------------------------------
+# Sizing presets: small (dev/test), medium (staging), large (production)
+sizing_preset = "small"
+
+# --------------------------------
+# Harbor Registry (REQUIRED — get credentials from WeAura)
+# --------------------------------
+harbor_url      = "registry.dev.weaura.ai/weaura-vendorized"
+harbor_username = "robot$your-robot-account"
+
+# ⚠️  SECURITY: Set via environment variable instead of this file:
+#     export TF_VAR_harbor_password="your-harbor-robot-token"
+harbor_password = "CHANGE_ME"
+
+# --------------------------------
+# Grafana
+# --------------------------------
+# ⚠️  SECURITY: Set via environment variable in production:
+#     export TF_VAR_grafana_admin_password="a-strong-password"
+grafana_admin_password = "admin"
+
+# --------------------------------
+# Tags
+# --------------------------------
+tags = {
+  ManagedBy   = "terraform"
+  Project     = "vendorize"
+  Team        = "platform-engineering"
+  CostCenter  = "infrastructure"
+}

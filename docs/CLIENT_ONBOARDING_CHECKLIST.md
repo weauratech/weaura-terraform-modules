@@ -25,7 +25,7 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
 - [ ] **GitHub organization verified**
   - Organization: `weauratech`
   - Repository accessible
-  - Versions: `ecr-charts` v1.0.0, `monitoring-stack` v1.0.0
+  - Versions: `ecr-charts` v1.0.0, `vendorize/monitoring` v1.0.0
 
 - [ ] **Harbor chart published and tested**
   - Chart: `weaura-monitoring` v0.1.0
@@ -41,7 +41,7 @@ This checklist ensures a smooth onboarding process for clients deploying the WeA
 ### Credentials Generation
 
 - [ ] **GitHub personal access token generated**
-  - Token name: `client-[CLIENT_NAME]-monitoring-stack`
+  - Token name: `client-[CLIENT_NAME]-vendorize-monitoring`
   - Permissions: Read-only access to `weaura-terraform-modules` repository
   - Expiry date set: `________________` (recommended: 90 days)
   - Token stored securely in 1Password/Vault
