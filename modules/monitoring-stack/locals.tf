@@ -428,8 +428,8 @@ locals {
 
 
     # Node scheduling (common)
-    node_selector = local.node_selector
-    tolerations   = local.tolerations
+    node_selector         = local.node_selector
+    tolerations           = local.tolerations
     storage_class         = var.storage_class
     grafana_storage_class = var.grafana_storage_class != "" ? var.grafana_storage_class : var.storage_class
     loki_storage_class    = var.loki_storage_class != "" ? var.loki_storage_class : var.storage_class
@@ -458,17 +458,17 @@ locals {
     cluster_issuer      = var.cluster_issuer
 
     # Grafana SSO
-    grafana_sso_provider              = var.grafana_sso_provider
-    grafana_sso_enabled               = var.grafana_sso_enabled
-    grafana_sso_allowed_organizations = var.grafana_sso_allowed_organizations
-    grafana_google_allowed_domains    = var.grafana_sso_allowed_domains
-    oauth_client_id                   = var.grafana_sso_client_id
-    oauth_client_secret               = var.grafana_sso_client_secret
-    oauth_auth_url                    = var.grafana_oauth_auth_url
-    oauth_token_url                   = var.grafana_oauth_token_url
-    oauth_api_url                     = var.grafana_oauth_api_url
-    oauth_role_attribute_path         = var.grafana_oauth_role_attribute_path
-    grafana_sso_team_ids                  = var.grafana_sso_team_ids
+    grafana_sso_provider                   = var.grafana_sso_provider
+    grafana_sso_enabled                    = var.grafana_sso_enabled
+    grafana_sso_allowed_organizations      = var.grafana_sso_allowed_organizations
+    grafana_google_allowed_domains         = var.grafana_sso_allowed_domains
+    oauth_client_id                        = var.grafana_sso_client_id
+    oauth_client_secret                    = var.grafana_sso_client_secret
+    oauth_auth_url                         = var.grafana_oauth_auth_url
+    oauth_token_url                        = var.grafana_oauth_token_url
+    oauth_api_url                          = var.grafana_oauth_api_url
+    oauth_role_attribute_path              = var.grafana_oauth_role_attribute_path
+    grafana_sso_team_ids                   = var.grafana_sso_team_ids
     grafana_sso_allow_assign_grafana_admin = var.grafana_sso_allow_assign_grafana_admin
 
     # Grafana datasources (component enablement)

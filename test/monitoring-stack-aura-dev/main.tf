@@ -105,14 +105,14 @@ module "monitoring_stack" {
   tempo = {
     enabled      = true
     storage_size = "10Gi" # Minimal for testing
-    retention    = "168h"  # 7 days in Go duration format (Tempo requirement)
+    retention    = "168h" # 7 days in Go duration format (Tempo requirement)
   }
 
   # Prometheus Configuration
   prometheus = {
     enabled      = true
     storage_size = "10Gi" # Minimal for testing
-    retention    = "168h"  # 7 days in Go duration format (Prometheus accepts both formats, but using consistent format)
+    retention    = "168h" # 7 days in Go duration format (Prometheus accepts both formats, but using consistent format)
   }
 
   # Pyroscope Configuration
