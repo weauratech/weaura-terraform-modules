@@ -26,7 +26,7 @@ This document contains the credentials and access information required to deploy
 
 **Token**: `[REDACTED - See 1Password/Vault]`
 
-**Token Name**: `client-[CLIENT_NAME]-monitoring-stack`  
+**Token Name**: `client-[CLIENT_NAME]-vendorize-monitoring`  
 **Created**: `[DATE]`  
 **Expires**: `[EXPIRY_DATE]`  
 **Permissions**: Read access to `weaura-terraform-modules` repository
@@ -78,7 +78,7 @@ git ls-remote https://github.com/weauratech/weaura-terraform-modules.git
 ### Authentication
 
 **Automatic** (via Terraform module):
-- The `monitoring-stack` Terraform module handles Harbor authentication automatically
+- The `vendorize/monitoring` Terraform module handles Harbor authentication automatically
 - Uses Harbor robot accounts for secure, credential-based access
 - No manual Harbor login required for Terraform usage
 
@@ -126,7 +126,7 @@ module "ecr_charts" {
 
 **Purpose**: Deploy complete WeAura monitoring stack (recommended - primary module)
 
-- **Source**: `git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0`
+- **Source**: `git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0`
 - **Current Version**: `1.0.0`
 - **Documentation**: See CLIENT_GUIDE.md for complete deployment guide
 - **Chart Version**: `weaura-monitoring` v0.1.0
@@ -134,7 +134,7 @@ module "ecr_charts" {
 **Usage**:
 ```hcl
 module "monitoring_stack" {
-  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0"
   version = "1.0.0"
   
   cluster_name         = "your-eks-cluster"
@@ -226,7 +226,7 @@ provider "helm" {
 }
 
 module "monitoring_stack" {
-  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0"
   version = "1.0.0"
 
   cluster_name = "your-cluster-name"
@@ -282,8 +282,6 @@ kubectl port-forward -n monitoring svc/weaura-monitoring-grafana 3000:80
 
 ### Online Resources
 
-- **Terraform Cloud**: https://app.terraform.io
-- **Module Registry**: https://registry.terraform.io/modules/weauratech/monitoring-stack/aws
 - **Grafana Docs**: https://grafana.com/docs
 - **AWS EKS**: https://docs.aws.amazon.com/eks
 
@@ -363,7 +361,7 @@ To update:
 ```hcl
 # In main.tf, update version
 module "monitoring_stack" {
-  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0"
   version = "1.1.0"  # Update to new version
   # ...
 }

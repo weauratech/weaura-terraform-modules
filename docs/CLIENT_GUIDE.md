@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0  
 **Date**: February 25, 2026  
-**Module**: `monitoring-stack` v1.0.0
+**Module**: `vendorize/monitoring` v1.0.0
 
 ---
 
@@ -258,7 +258,7 @@ provider "helm" {
 # --------------------------------
 
 module "monitoring_stack" {
-  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0"
   version = "1.0.0"
 
   # Cluster Configuration
@@ -491,7 +491,7 @@ terraform init
 **Expected output**:
 ```
 Initializing modules...
-Downloading git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0 1.0.0...
+Downloading git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0 1.0.0...
 
 Initializing the backend...
 
@@ -741,7 +741,7 @@ To update the monitoring stack to a newer version:
 ```hcl
 # In main.tf, update version
 module "monitoring_stack" {
-  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/monitoring-stack?ref=v1.0.0"
+  source  = "git::https://github.com/weauratech/weaura-terraform-modules.git//modules/vendorize/monitoring?ref=v1.0.0"
   version = "1.1.0"  # Update this
   # ...
 }
@@ -907,7 +907,7 @@ terraform apply -refresh-only
 
 ### Documentation
 
-- **Module README**: https://registry.terraform.io/modules/weauratech/monitoring-stack/aws
+- **Module README**: https://github.com/weauratech/weaura-terraform-modules/tree/main/modules/vendorize/monitoring
 - **Helm Chart Guide**: (provided separately)
 - **Architecture Diagrams**: (provided separately)
 

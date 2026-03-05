@@ -1,66 +1,34 @@
 # WeAura Terraform Modules
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Terraform](https://img.shields.io/badge/Terraform-%3E%3D1.5.0-623CE4.svg)](https://terraform.io)
+[![Terraform](https://img.shields.io/badge/Terraform-%3E%3D1.6.0-623CE4.svg)](https://terraform.io)
 
-Production-ready, reusable Terraform modules for provisioning complex infrastructure and applications across AWS and Azure.
+Production-ready, reusable Terraform modules for provisioning observability infrastructure on AWS.
 
 ## Available Modules
 
-| Module                                | Description                                                                              | Cloud Support |
-| ------------------------------------- | ---------------------------------------------------------------------------------------- | ------------- |
-| [grafana-oss](./modules/grafana-oss/) | Complete observability stack with Grafana, Prometheus, Loki, Mimir, Tempo, and Pyroscope | AWS, Azure    |
+| Module | Description |
+| :--- | :--- |
+| [vendorize/monitoring](./modules/vendorize/monitoring/) | Complete observability stack with Grafana, Prometheus, Loki, Mimir, Tempo, and Pyroscope (vendorize namespace for customer deployments). |
+| [vpc](./modules/vpc/) | Production-ready VPC with public/private subnets and NAT Gateway. |
+| [eks](./modules/eks/) | EKS cluster with support for Auto Mode, Managed Node Groups, and Pod Identity. |
 
-## Quick Start
-
-### Grafana OSS Stack on AWS
-
-```hcl
-module "observability" {
-  source = "github.com/WeAura/weaura-terraform-modules//modules/grafana-oss?ref=v1.0.0"
-
-  cloud_provider = "aws"
-  environment    = "production"
-
-  # AWS-specific
-  aws_region     = "us-east-1"
-  eks_cluster_name = "my-cluster"
-
-  # Storage
-  create_storage = true
-
-  # Alerting
-  alerting_provider      = "slack"
-  slack_webhook_url      = var.slack_webhook_url
-  slack_webhook_channel  = "#alerts"
-
-  tags = {
-    Project     = "my-project"
-    Environment = "production"
-  }
-}
-```
-
-### Grafana OSS Stack on Azure
+## Quick Start: Monitoring Stack on AWS
 
 ```hcl
-module "observability" {
-  source = "github.com/WeAura/weaura-terraform-modules//modules/grafana-oss?ref=v1.0.0"
+module "monitoring" {
+  source = "github.com/WeAura/weaura-terraform-modules//modules/vendorize/monitoring?ref=v2.0.0"
 
-  cloud_provider = "azure"
-  environment    = "production"
+  cluster_name = "my-cluster"
+  region       = "us-east-1"
+  
+  # Harbor Registry Credentials
+  harbor_url      = "registry.dev.weaura.ai/weaura-vendorized"
+  harbor_username = var.harbor_username
+  harbor_password = var.harbor_password
 
-  # Azure-specific
-  azure_resource_group_name = "my-resource-group"
-  azure_location            = "eastus"
-  aks_cluster_name          = "my-cluster"
-
-  # Storage
-  create_storage = true
-
-  # Alerting
-  alerting_provider     = "teams"
-  teams_webhook_url     = var.teams_webhook_url
+  # Component Configuration
+  sizing_preset = "medium"
 
   tags = {
     Project     = "my-project"
@@ -71,41 +39,30 @@ module "observability" {
 
 ## Module Features
 
-### Multi-Cloud Support
+### AWS Integration
 
-All modules are designed to work seamlessly across cloud providers:
+The modules are optimized for AWS with deep integration into native services:
 
-| Feature            | AWS                  | Azure                           |
-| ------------------ | -------------------- | ------------------------------- |
-| Kubernetes         | EKS                  | AKS                             |
-| Workload Identity  | IRSA                 | Workload Identity               |
-| Object Storage     | S3                   | Azure Blob Storage              |
-| Secrets Management | AWS Secrets Manager  | Azure Key Vault                 |
-| IAM/RBAC           | IAM Roles + Policies | Managed Identities + Azure RBAC |
-
-### Alerting Providers
-
-- **Slack** - Webhook integration with channel routing
-- **Microsoft Teams** - Webhook integration with adaptive cards
+| Feature | AWS Implementation |
+| :--- | :--- |
+| **Kubernetes** | Amazon EKS (Managed Node Groups or Auto Mode) |
+| **Workload Identity** | IRSA (OIDC) or EKS Pod Identity |
+| **Object Storage** | Amazon S3 (Encrypted, Versioned) |
+| **Networking** | VPC with Public/Private subnets across multiple AZs |
+| **Observability** | WeAura Monitoring Stack (Helm v0.15.0) |
 
 ## Requirements
 
-- Terraform >= 1.5.0
-- Kubernetes cluster (EKS or AKS)
+- Terraform >= 1.6.0
+- Amazon EKS Cluster
 - kubectl configured with cluster access
 - Helm 3.x
+- Harbor credentials for chart distribution
 
 ### Provider Requirements
 
-For AWS:
-
-- AWS CLI configured with appropriate credentials
-- IAM permissions for creating roles, policies, and S3 buckets
-
-For Azure:
-
-- Azure CLI configured with appropriate credentials
-- Permissions for creating managed identities, storage accounts, and Key Vault access
+- **AWS CLI**: Configured with appropriate credentials.
+- **Permissions**: Sufficient IAM permissions for creating VPCs, EKS clusters, IAM roles, and S3 buckets.
 
 ## Contributing
 
@@ -114,15 +71,11 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ### Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/WeAura/weaura-terraform-modules.git
-cd weaura-terraform-modules
-
 # Format code
 terraform fmt -recursive
 
 # Validate modules
-cd modules/grafana-oss
+cd modules/vendorize/monitoring
 terraform init
 terraform validate
 ```
@@ -133,8 +86,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Support
 
-- Open an [issue](https://github.com/WeAura/weaura-terraform-modules/issues) for bug reports or feature requests
-- Check [examples](./modules/grafana-oss/examples/) for usage patterns
+- Open an [issue](https://github.com/WeAura/weaura-terraform-modules/issues) for bug reports or feature requests.
+- Check [examples](./modules/vendorize/monitoring/examples/) for usage patterns.
 
 ## About WeAura
 
